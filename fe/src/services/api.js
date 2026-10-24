@@ -15,24 +15,14 @@ export const getActiveApiUrl = () => {
   return BACKEND_URL;
 };
 
-// Purge any stale demo tokens
-if (typeof localStorage !== 'undefined') {
-  try {
-    const token = localStorage.getItem('access_token');
-    if (token && token.startsWith('demo-admin-token-')) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-    }
-  } catch {}
-}
-
 const api = axios.create({
   baseURL: getActiveApiUrl(),
   headers: { 'Content-Type': 'application/json' },
   timeout: 45000,
+  withCredentials: false, // JWT is in Authorization header; cookies not needed
 });
 
-// Always use the latest baseURL and attach JWT token
+// Always use latest baseURL and attach JWT
 api.interceptors.request.use((config) => {
   config.baseURL = getActiveApiUrl();
   const token = localStorage.getItem('access_token');
@@ -40,14 +30,14 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Auto-refresh on 401
+// On 401, try token refresh once — but don't redirect to login (user is locally authed)
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
     if (error.response?.status === 401 && !error.config._retry) {
       error.config._retry = true;
       const refresh = localStorage.getItem('refresh_token');
-      if (refresh && !refresh.startsWith('demo-')) {
+      if (refresh) {
         try {
           const { data } = await axios.post(
             `${getActiveApiUrl()}/api/auth/refresh`,
@@ -60,7 +50,7 @@ api.interceptors.response.use(
         } catch {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
-          window.location.href = '/login';
+          // Don't redirect — the user is still locally authenticated
         }
       }
     }
@@ -68,12 +58,29 @@ api.interceptors.response.use(
   }
 );
 
+/**
+ * Wait until a valid JWT is in localStorage (background fetch from AuthContext).
+ * Admin mutations call this so they don't fire before the server has authenticated.
+ * Times out after 60s and proceeds anyway (will get a real error from the server).
+ */
+const waitForJWT = () =>
+  new Promise((resolve) => {
+    const token = localStorage.getItem('access_token');
+    if (token) return resolve();
+    const start = Date.now();
+    const poll = setInterval(() => {
+      if (localStorage.getItem('access_token') || Date.now() - start > 60000) {
+        clearInterval(poll);
+        resolve();
+      }
+    }, 500);
+  });
+
 // Health / wakeup
 export const getHealth = () => api.get('/api/health');
 
 /**
  * Wake the server by polling /api/health until it responds.
- * Called on app startup so all subsequent data fetches hit the live DB.
  */
 export const wakeServer = (onStatus) => {
   const url = getActiveApiUrl();
@@ -112,8 +119,7 @@ export const wakeServer = (onStatus) => {
   };
 };
 
-// Public data endpoints — always fetch from real backend (no mock fallback)
-// This ensures data is always in sync across all devices and browsers.
+// Public data endpoints — always from real backend for cross-device sync
 export const getLeague = () => api.get('/api/league');
 export const getStandings = () => api.get('/api/standings');
 export const getTopScorers = () => api.get('/api/top-scorers');
@@ -123,57 +129,48 @@ export const getPlayers = (params) => api.get('/api/players', { params });
 export const getPlayer = (id) => api.get(`/api/players/${id}`);
 export const getDashboardStats = () => api.get('/api/dashboard/stats');
 
-// Auth — retries on network error so Render cold-start doesn't block login
+// Auth login — used by background JWT fetcher in AuthContext
 export const login = async (data) => {
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < 5; attempt++) {
     try {
       return await api.post('/api/auth/login', data);
     } catch (err) {
-      // Auth rejection — fail immediately, no point retrying
       if (err.response?.status === 401 || err.response?.status === 422 || err.response?.status === 400) {
         throw err;
       }
-      // Network error = server still waking. Wait and retry.
-      const isNetworkErr = !err.response || err.code === 'ERR_NETWORK' || err.code === 'ECONNABORTED';
-      if (isNetworkErr && attempt < 3) {
-        await new Promise((r) => setTimeout(r, 5000));
-        continue;
-      }
-      throw err;
+      if (attempt < 4) await new Promise((r) => setTimeout(r, 5000));
+      else throw err;
     }
   }
 };
 
 export const logout = async () => {
-  try {
-    await api.post('/api/auth/logout');
-  } catch {}
+  try { await api.post('/api/auth/logout'); } catch {}
 };
 
 export const getMe = () => api.get('/api/auth/me');
 export const refreshToken = (refresh_token) => api.post('/api/auth/refresh', { refresh_token });
 
-// Admin - Matches
-export const adminCreateMatch = (data) => api.post('/api/admin/matches', data);
-export const adminAddNextMatch = () => api.post('/api/admin/matches/add-next');
-export const adminDeleteMatch = (id) => api.delete(`/api/admin/matches/${id}`);
-export const adminUpdateMatch = (id, data) => api.patch(`/api/admin/matches/${id}`, data);
-export const adminSaveResult = (id, data) => api.put(`/api/admin/matches/${id}/result`, data);
-export const adminCompleteMatch = (id, data) => api.post(`/api/admin/matches/${id}/complete`, data);
-export const adminReopenMatch = (id) => api.post(`/api/admin/matches/${id}/reopen`);
-export const adminPostponeMatch = (id) => api.post(`/api/admin/matches/${id}/postpone`);
+// ─── Admin mutations — wait for JWT before firing ───────────────────────────
+// This ensures they work even if Render is still waking up when user logs in.
 
-// Admin - Players
-export const adminCreatePlayer = (data) => api.post('/api/admin/players', data);
-export const adminUpdatePlayer = (id, data) => api.patch(`/api/admin/players/${id}`, data);
+export const adminCreateMatch = async (data) => { await waitForJWT(); return api.post('/api/admin/matches', data); };
+export const adminAddNextMatch = async () => { await waitForJWT(); return api.post('/api/admin/matches/add-next'); };
+export const adminDeleteMatch = async (id) => { await waitForJWT(); return api.delete(`/api/admin/matches/${id}`); };
+export const adminUpdateMatch = async (id, data) => { await waitForJWT(); return api.patch(`/api/admin/matches/${id}`, data); };
+export const adminSaveResult = async (id, data) => { await waitForJWT(); return api.put(`/api/admin/matches/${id}/result`, data); };
+export const adminCompleteMatch = async (id, data) => { await waitForJWT(); return api.post(`/api/admin/matches/${id}/complete`, data); };
+export const adminReopenMatch = async (id) => { await waitForJWT(); return api.post(`/api/admin/matches/${id}/reopen`); };
+export const adminPostponeMatch = async (id) => { await waitForJWT(); return api.post(`/api/admin/matches/${id}/postpone`); };
 
-// Admin - Teams & League
-export const adminCreateTeam = (data) => api.post('/api/admin/teams', data);
-export const adminUpdateTeam = (id, data) => api.patch(`/api/admin/teams/${id}`, data);
-export const adminUpdateLeague = (data) => api.patch('/api/admin/league', data);
-export const adminResetSeason = () => api.post('/api/admin/league/reset-season');
+export const adminCreatePlayer = async (data) => { await waitForJWT(); return api.post('/api/admin/players', data); };
+export const adminUpdatePlayer = async (id, data) => { await waitForJWT(); return api.patch(`/api/admin/players/${id}`, data); };
 
-// Admin - Audit
+export const adminCreateTeam = async (data) => { await waitForJWT(); return api.post('/api/admin/teams', data); };
+export const adminUpdateTeam = async (id, data) => { await waitForJWT(); return api.patch(`/api/admin/teams/${id}`, data); };
+export const adminUpdateLeague = async (data) => { await waitForJWT(); return api.patch('/api/admin/league', data); };
+export const adminResetSeason = async () => { await waitForJWT(); return api.post('/api/admin/league/reset-season'); };
+
 export const getAuditLogs = (params) => api.get('/api/admin/audit-logs', { params });
 
 export default api;
