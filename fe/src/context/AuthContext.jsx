@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { login as apiLogin, logout as apiLogout } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -8,21 +8,20 @@ const ADMIN_PASSWORD = 'Admin@123';
 const AUTH_KEY = 'ltc_admin_auth';
 
 /**
- * After a successful local login, fetch a real JWT from the backend
- * silently in the background. This allows admin mutations to work
- * once Render finishes waking up, without blocking the login screen.
+ * After a successful local login, fetch a real JWT from the backend.
+ * Retries every 5s while Render is waking up.
+ * Calls onReady() once JWT is obtained.
  */
-async function fetchJWTInBackground(username, password) {
-  for (let attempt = 0; attempt < 12; attempt++) {
+async function fetchJWTInBackground(username, password, onReady) {
+  for (let attempt = 0; attempt < 15; attempt++) {
     try {
       const { data } = await apiLogin({ username, password });
       localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('refresh_token', data.refresh_token);
-      return; // success
+      onReady?.();
+      return;
     } catch (err) {
-      // If the backend says wrong credentials, stop — something is misconfigured
       if (err.response?.status === 401 || err.response?.status === 422) return;
-      // Network error = server still waking, wait 5s and retry
       await new Promise((r) => setTimeout(r, 5000));
     }
   }
@@ -31,20 +30,24 @@ async function fetchJWTInBackground(username, password) {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [serverReady, setServerReady] = useState(false); // true once JWT obtained
 
   useEffect(() => {
-    // Restore session from localStorage on page load
     const saved = localStorage.getItem(AUTH_KEY);
+    // If already have a token from a previous session, mark ready immediately
+    const hasToken = !!localStorage.getItem('access_token');
     if (saved === 'true') {
       setUser({ username: 'admin', role: 'admin' });
-      // Try to get / refresh JWT silently (backend may still be waking)
-      fetchJWTInBackground(ADMIN_USERNAME, ADMIN_PASSWORD);
+      if (hasToken) {
+        setServerReady(true);
+      } else {
+        fetchJWTInBackground(ADMIN_USERNAME, ADMIN_PASSWORD, () => setServerReady(true));
+      }
     }
     setLoading(false);
   }, []);
 
   const login = async (username, password) => {
-    // Instant credential check — no server round-trip needed
     if (
       username.trim().toLowerCase() !== ADMIN_USERNAME ||
       password !== ADMIN_PASSWORD
@@ -53,13 +56,10 @@ export function AuthProvider({ children }) {
       err.response = { status: 401 };
       throw err;
     }
-
-    // Grant access immediately
     localStorage.setItem(AUTH_KEY, 'true');
     setUser({ username: 'admin', role: 'admin' });
-
-    // Fetch real JWT in background so admin mutations work once Render wakes
-    fetchJWTInBackground(ADMIN_USERNAME, ADMIN_PASSWORD);
+    setServerReady(false); // will become true once JWT arrives
+    fetchJWTInBackground(ADMIN_USERNAME, ADMIN_PASSWORD, () => setServerReady(true));
   };
 
   const logout = async () => {
@@ -68,12 +68,13 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     setUser(null);
+    setServerReady(false);
   };
 
   const isAdmin = user?.role === 'admin';
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, isAdmin, serverReady }}>
       {children}
     </AuthContext.Provider>
   );

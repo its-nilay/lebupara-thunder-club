@@ -43,7 +43,7 @@ import { formatMatchDateTime } from '../services/dateUtils';
 import { Link } from 'react-router-dom';
 
 export default function Admin() {
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading, serverReady } = useAuth();
   const [activeTab, setActiveTab] = useState('matches');
 
   const [league, setLeague] = useState(null);
@@ -285,15 +285,25 @@ export default function Admin() {
         </motion.div>
       )}
 
-      {/* Cloud Backend Sync Status */}
-      <div className="flex items-center gap-2.5 p-3 rounded-2xl border border-slate-800 bg-slate-900/60 text-xs">
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-        </span>
-        <span className="font-bold text-emerald-400">Live Cloud Sync</span>
-        <span className="text-slate-400">— All changes are saved to the database and visible on all devices</span>
-      </div>
+      {/* Cloud Server Connection Status */}
+      {!serverReady ? (
+        <div className="flex items-center gap-3 p-3 rounded-2xl border border-amber-500/30 bg-amber-500/5 text-xs">
+          <RefreshCw className="w-4 h-4 animate-spin text-amber-400 flex-shrink-0" />
+          <div>
+            <span className="font-bold text-amber-400">Connecting to cloud server...</span>
+            <span className="text-slate-400 ml-2">Render wakes up in ~20s — wait before saving changes</span>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2.5 p-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 text-xs">
+          <span className="relative flex h-2.5 w-2.5 flex-shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          </span>
+          <span className="font-bold text-emerald-400">Cloud Server Connected</span>
+          <span className="text-slate-400">— All changes sync to database instantly across all devices</span>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-800 pb-3 overflow-x-auto">
