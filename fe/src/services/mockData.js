@@ -358,7 +358,7 @@ export function mockLogin(username, password) {
     };
   }
   const err = new Error('Invalid credentials');
-  err.response = { data: { detail: 'Invalid username or password. Default is admin / Admin@123' } };
+  err.response = { data: { detail: 'Invalid username or password' } };
   throw err;
 }
 
