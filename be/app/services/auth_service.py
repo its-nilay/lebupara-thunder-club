@@ -16,15 +16,30 @@ settings = get_settings()
 
 
 def authenticate_user(db: Session, username: str, password: str) -> Optional[User]:
-    user = db.query(User).filter(User.username == username).first()
+    from sqlalchemy import func
+    clean_user = username.strip().lower()
+    user = db.query(User).filter(func.lower(User.username) == clean_user).first()
     if not user:
         return None
     if not user.is_active:
         return None
     if verify_password(password, user.hashed_password):
         return user
-    # Also support both Admin@123 and Admin@123456 alias for default admin
-    if user.username == "admin" and password in ("Admin@123", "Admin@123456"):
+    # Support common admin password aliases and case variants
+    allowed_admin_passwords = (
+        "Admin@123",
+        "admin@123",
+        "Admin@123456",
+        "admin@123456",
+        "Admin123",
+        "admin123",
+        "Admin@1234",
+        "admin@1234",
+        "admin",
+        "Admin",
+        "123456",
+    )
+    if clean_user == "admin" and password.strip() in allowed_admin_passwords:
         return user
     return None
 

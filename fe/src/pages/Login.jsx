@@ -15,17 +15,27 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!username || !password) {
+    const cleanUser = username.trim();
+    if (!cleanUser || !password) {
       setError('Please enter both username and password');
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      await login(username, password);
+      await login(cleanUser, password);
       navigate('/admin');
     } catch (err) {
-      setError(err?.response?.data?.detail || 'Invalid username or password');
+      const detail = err?.response?.data?.detail;
+      let msg = 'Invalid username or password';
+      if (typeof detail === 'string') {
+        msg = detail;
+      } else if (Array.isArray(detail) && detail[0]?.msg) {
+        msg = detail[0].msg;
+      } else if (err?.message) {
+        msg = err.message;
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -66,7 +76,10 @@ export default function Login() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Admin username"
+                placeholder="admin"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 required
                 className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-100 focus:outline-none focus:border-cyan-400"
               />
@@ -82,6 +95,9 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 required
                 className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-100 focus:outline-none focus:border-cyan-400"
               />
