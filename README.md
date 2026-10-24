@@ -163,7 +163,7 @@ git commit -m "feat: complete Lebupara Thunder Club league management platform"
 ### Step 4: Link Remote & Push
 Copy your repository URL from GitHub and run:
 ```bash
-git remote add origin https://github.com/<YOUR_GITHUB_USERNAME>/lebupara-thunder-club.git
+git remote add origin https://github.com/its-nilay/lebupara-thunder-club.git
 git branch -M main
 git push -u origin main
 ```
