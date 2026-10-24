@@ -51,12 +51,11 @@ coverage.xml
 .dmypy.json
 dmypy.json
 
-# SQLite Databases & Local Data (Do NOT commit runtime databases)
-*.db
+# SQLite Databases & Local Data (Track pre-populated club database)
 *.sqlite
 *.sqlite3
-be/lebupara.db
-be/*.db
+*.db
+!be/lebupara.db
 
 # Node.js & Dependencies
 node_modules/

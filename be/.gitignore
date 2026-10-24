@@ -26,8 +26,8 @@ htmlcov/
 *.env
 !.env.example
 
-# Local SQLite databases
-*.db
+# Local SQLite databases (Track initial club database)
 *.sqlite
 *.sqlite3
-lebupara.db
+*.db
+!lebupara.db
