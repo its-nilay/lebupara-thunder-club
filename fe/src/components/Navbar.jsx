@@ -121,13 +121,34 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile hamburger */}
-            <button
-              className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white"
-              onClick={() => setMobileOpen(!mobileOpen)}
-            >
-              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            {/* Mobile Actions: Admin button + hamburger */}
+            <div className="flex md:hidden items-center gap-2">
+              {isAdmin ? (
+                <Link
+                  to="/admin"
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30"
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Admin</span>
+                </Link>
+              ) : (
+                <Link
+                  to="/login"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-sm shadow-cyan-500/10"
+                >
+                  <Lock className="w-3 h-3 text-cyan-400" />
+                  <span>Sign In</span>
+                </Link>
+              )}
+
+              <button
+                className="p-1.5 rounded-lg text-slate-300 hover:text-white bg-slate-900 border border-slate-800"
+                onClick={() => setMobileOpen(!mobileOpen)}
+                aria-label="Toggle navigation menu"
+              >
+                {mobileOpen ? <X className="w-5 h-5 text-cyan-400" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
       </nav>

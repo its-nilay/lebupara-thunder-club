@@ -1,5 +1,6 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { Lock } from 'lucide-react';
 
 export default function MainLayout() {
   return (
@@ -28,7 +29,22 @@ export default function MainLayout() {
         <Outlet />
       </main>
 
-      <footer className="mt-20 py-8 text-center" style={{ borderTop: '1px solid rgba(0,229,255,0.08)', color: '#475569', fontSize: '0.8rem' }}>
+      <footer className="mt-20 py-8 text-center border-t border-cyan-500/10 text-xs text-slate-500 space-y-3">
+        <div className="flex items-center justify-center gap-4 text-xs font-semibold flex-wrap">
+          <Link to="/" className="text-slate-400 hover:text-cyan-400 transition">Dashboard</Link>
+          <span>•</span>
+          <Link to="/standings" className="text-slate-400 hover:text-cyan-400 transition">Points Table</Link>
+          <span>•</span>
+          <Link to="/top-scorers" className="text-slate-400 hover:text-cyan-400 transition">Top Scorers</Link>
+          <span>•</span>
+          <Link to="/matches" className="text-slate-400 hover:text-cyan-400 transition">Match Center</Link>
+          <span>•</span>
+          <Link to="/players" className="text-slate-400 hover:text-cyan-400 transition">Squad Roster</Link>
+          <span>•</span>
+          <Link to="/login" className="text-cyan-400 hover:underline font-bold inline-flex items-center gap-1">
+            <Lock className="w-3 h-3" /> Admin Sign In
+          </Link>
+        </div>
         <p>⚡ Lebupara Thunder Club League · Built for the beautiful game ⚡</p>
       </footer>
     </div>

@@ -1,8 +1,19 @@
 import axios from 'axios';
+import {
+  getMockLeague,
+  getMockStandings,
+  getMockTopScorers,
+  getMockMatches,
+  getMockPlayers,
+  getMockDashboardStats,
+  mockLogin,
+  getMockMe,
+} from './mockData';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
   headers: { 'Content-Type': 'application/json' },
+  timeout: 6000,
 });
 
 // Attach JWT token from localStorage
@@ -40,21 +51,64 @@ api.interceptors.response.use(
   }
 );
 
-// Public endpoints
+/**
+ * Executes an API call with automatic fallback to built-in seed data
+ * if the backend is unreachable (e.g. unconfigured Vercel environment or offline).
+ */
+const withFallback = async (apiCall, fallbackFn) => {
+  try {
+    return await apiCall();
+  } catch (err) {
+    if (!err.response || err.code === 'ERR_NETWORK' || err.message === 'Network Error' || err.code === 'ECONNABORTED') {
+      return fallbackFn();
+    }
+    throw err;
+  }
+};
+
+// Public endpoints with graceful fallback
 export const getHealth = () => api.get('/api/health');
-export const getLeague = () => api.get('/api/league');
-export const getStandings = () => api.get('/api/standings');
-export const getTopScorers = () => api.get('/api/top-scorers');
-export const getMatches = () => api.get('/api/matches');
+export const getLeague = () => withFallback(() => api.get('/api/league'), getMockLeague);
+export const getStandings = () => withFallback(() => api.get('/api/standings'), getMockStandings);
+export const getTopScorers = () => withFallback(() => api.get('/api/top-scorers'), getMockTopScorers);
+export const getMatches = () => withFallback(() => api.get('/api/matches'), getMockMatches);
 export const getMatch = (id) => api.get(`/api/matches/${id}`);
-export const getPlayers = (params) => api.get('/api/players', { params });
+export const getPlayers = (params) => withFallback(() => api.get('/api/players', { params }), getMockPlayers);
 export const getPlayer = (id) => api.get(`/api/players/${id}`);
-export const getDashboardStats = () => api.get('/api/dashboard/stats');
+export const getDashboardStats = () => withFallback(() => api.get('/api/dashboard/stats'), getMockDashboardStats);
 
 // Auth
-export const login = (data) => api.post('/api/auth/login', data);
-export const logout = () => api.post('/api/auth/logout');
-export const getMe = () => api.get('/api/auth/me');
+export const login = async (data) => {
+  try {
+    return await api.post('/api/auth/login', data);
+  } catch (err) {
+    if (!err.response || err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
+      return mockLogin(data.username, data.password);
+    }
+    throw err;
+  }
+};
+
+export const logout = async () => {
+  try {
+    await api.post('/api/auth/logout');
+  } catch {
+    // Ignore network failure on logout
+  }
+};
+
+export const getMe = async () => {
+  try {
+    return await api.get('/api/auth/me');
+  } catch (err) {
+    const token = localStorage.getItem('access_token');
+    if (token && token.startsWith('demo-admin-token-')) {
+      return getMockMe();
+    }
+    throw err;
+  }
+};
+
 export const refreshToken = (refresh_token) => api.post('/api/auth/refresh', { refresh_token });
 
 // Admin - Matches
