@@ -33,6 +33,8 @@ import {
   adminUpdateLeague,
   adminAddNextMatch,
   adminDeleteMatch,
+  getActiveApiUrl,
+  testBackendConnection,
 } from '../services/api';
 import ScoreModal from '../components/ScoreModal';
 import TeamConfigModal from '../components/TeamConfigModal';
@@ -57,6 +59,8 @@ export default function Admin() {
   const [auditLogs, setAuditLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
+  const [backendUrl, setBackendUrl] = useState(getActiveApiUrl());
+  const [backendStatus, setBackendStatus] = useState('checking');
 
   // Modals state
   const [scoreModalMatch, setScoreModalMatch] = useState(null);
@@ -113,6 +117,20 @@ export default function Admin() {
       fetchData();
     }
   }, [isAdmin]);
+
+  useEffect(() => {
+    let isMounted = true;
+    testBackendConnection()
+      .then((ok) => {
+        if (isMounted) setBackendStatus(ok ? 'connected' : 'offline');
+      })
+      .catch(() => {
+        if (isMounted) setBackendStatus('offline');
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [backendUrl]);
 
   const showNotification = (msg) => {
     setMessage(msg);
@@ -282,6 +300,44 @@ export default function Admin() {
           <span>{message}</span>
         </motion.div>
       )}
+
+      {/* Cloud Backend Live Synchronization Status */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur text-xs">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {backendStatus === 'connected' ? (
+            <>
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <span className="font-bold text-emerald-400">
+                Live Cloud Sync Active:
+              </span>
+              <span className="text-slate-300 font-mono text-[11px] truncate max-w-xs sm:max-w-md">
+                {backendUrl}
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 text-[10px] font-semibold border border-emerald-500/20">
+                Synced Across All Platforms (PC & Mobile)
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+              </span>
+              <span className="font-bold text-amber-400">
+                Connecting to Cloud Server:
+              </span>
+              <span className="text-slate-300 font-mono text-[11px] truncate max-w-xs sm:max-w-md">
+                {backendUrl}
+              </span>
+              <span className="text-slate-400 text-[11px]">
+                (Connecting to Render...)
+              </span>
+            </>
+          )}
+        </div>
+      </div>
 
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-800 pb-3 overflow-x-auto">

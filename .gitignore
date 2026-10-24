@@ -86,7 +86,7 @@ fe/.vite/
 be/.env
 fe/.env
 fe/.env.local
-fe/.env.production
+!fe/.env.production
 
 # Keep example files tracked for developers
 !.env.example

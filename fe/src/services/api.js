@@ -24,14 +24,58 @@ import {
   mockGetAuditLogs,
 } from './mockData';
 
+export const getActiveApiUrl = () => {
+  if (typeof window !== 'undefined') {
+    const custom = localStorage.getItem('ltc_backend_url');
+    if (custom && custom.trim()) {
+      return custom.trim().replace(/\/+$/, '');
+    }
+  }
+  if (import.meta.env.VITE_API_BASE_URL && import.meta.env.VITE_API_BASE_URL.trim()) {
+    return import.meta.env.VITE_API_BASE_URL.trim().replace(/\/+$/, '');
+  }
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ) {
+    return 'http://localhost:8000';
+  }
+  return 'https://lebupara-thunder-club.onrender.com';
+};
+
+export const hasActiveBackend = () => {
+  const url = getActiveApiUrl();
+  return Boolean(url && !url.includes('localhost') && !url.includes('127.0.0.1'));
+};
+
+export const setCustomApiUrl = (url) => {
+  if (typeof window !== 'undefined') {
+    if (url && url.trim()) {
+      const clean = url.trim().replace(/\/+$/, '');
+      localStorage.setItem('ltc_backend_url', clean);
+      api.defaults.baseURL = clean;
+    } else {
+      localStorage.removeItem('ltc_backend_url');
+      api.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+    }
+  }
+};
+
+export const testBackendConnection = async (targetUrl) => {
+  const url = (targetUrl || getActiveApiUrl()).replace(/\/+$/, '');
+  const res = await axios.get(`${url}/api/health`, { timeout: 10000 });
+  return res.data?.status === 'ok' || res.data?.status === 'healthy';
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  baseURL: getActiveApiUrl(),
   headers: { 'Content-Type': 'application/json' },
-  timeout: 20000,
+  timeout: 30000,
 });
 
-// Attach JWT token from localStorage
+// Attach JWT token from localStorage and ensure latest baseURL
 api.interceptors.request.use((config) => {
+  config.baseURL = getActiveApiUrl();
   const token = localStorage.getItem('access_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
@@ -47,7 +91,7 @@ api.interceptors.response.use(
       if (refresh && !refresh.startsWith('demo-')) {
         try {
           const { data } = await axios.post(
-            `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/auth/refresh`,
+            `${getActiveApiUrl()}/api/auth/refresh`,
             { refresh_token: refresh }
           );
           localStorage.setItem('access_token', data.access_token);
@@ -67,40 +111,43 @@ api.interceptors.response.use(
 
 /**
  * Executes an API call with automatic fallback to built-in seed/offline engine
- * if the backend is unreachable (e.g. unconfigured Vercel environment or offline server).
+ * if no cloud backend is configured or if the server is temporarily waking up.
  */
 const withFallback = async (apiCall, fallbackFn) => {
+  const isBackendConfigured = hasActiveBackend();
   const token = typeof localStorage !== 'undefined' ? localStorage.getItem('access_token') : null;
   const isDemoToken = token && token.startsWith('demo-admin-token-');
-  const isRemoteHost = typeof window !== 'undefined' &&
-    window.location.hostname !== 'localhost' &&
-    window.location.hostname !== '127.0.0.1';
-  const hasConfiguredBackend = Boolean(
-    import.meta.env.VITE_API_BASE_URL &&
-    !import.meta.env.VITE_API_BASE_URL.includes('localhost')
-  );
 
-  // If running in demo mode or deployed on Vercel without a configured remote backend,
-  // invoke the local fallback engine immediately without failing on localhost:8000.
-  if ((isDemoToken || (isRemoteHost && !hasConfiguredBackend)) && fallbackFn) {
+  // If a live cloud backend is configured, attempt the live API call first so that
+  // changes are stored centrally in the database and visible across all devices (PC, Mobile, etc.).
+  if (isBackendConfigured) {
+    try {
+      return await apiCall();
+    } catch (err) {
+      // If the token is a demo token, the live backend will reject it with 401.
+      if (err.response?.status === 401 && isDemoToken) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+      }
+
+      const isNetworkError =
+        !err.response ||
+        err.code === 'ERR_NETWORK' ||
+        err.message === 'Network Error' ||
+        err.code === 'ECONNABORTED';
+
+      if (isNetworkError && fallbackFn) {
+        return fallbackFn();
+      }
+      throw err;
+    }
+  }
+
+  // If no live cloud backend is configured at all, run in local offline mode
+  if (fallbackFn) {
     return fallbackFn();
   }
-
-  try {
-    return await apiCall();
-  } catch (err) {
-    const isNetworkError =
-      !err.response ||
-      err.code === 'ERR_NETWORK' ||
-      err.message === 'Network Error' ||
-      err.code === 'ECONNABORTED' ||
-      (err.response?.status === 404 && !hasConfiguredBackend);
-
-    if (isNetworkError && fallbackFn) {
-      return fallbackFn();
-    }
-    throw err;
-  }
+  return apiCall();
 };
 
 // Public endpoints with graceful fallback
@@ -132,26 +179,21 @@ export const getDashboardStats = () => withFallback(() => api.get('/api/dashboar
 
 // Auth
 export const login = async (data) => {
-  const isRemoteHost = typeof window !== 'undefined' &&
-    window.location.hostname !== 'localhost' &&
-    window.location.hostname !== '127.0.0.1';
-  const hasConfiguredBackend = Boolean(
-    import.meta.env.VITE_API_BASE_URL &&
-    !import.meta.env.VITE_API_BASE_URL.includes('localhost')
-  );
+  const isBackendConfigured = hasActiveBackend();
 
-  if (isRemoteHost && !hasConfiguredBackend) {
-    return mockLogin(data.username, data.password);
-  }
-
-  try {
-    return await api.post('/api/auth/login', data);
-  } catch (err) {
-    if (!err.response || err.code === 'ERR_NETWORK' || err.message === 'Network Error' || err.code === 'ECONNABORTED') {
-      return mockLogin(data.username, data.password);
+  if (isBackendConfigured) {
+    try {
+      const res = await api.post('/api/auth/login', data);
+      return res;
+    } catch (err) {
+      if (!err.response || err.code === 'ERR_NETWORK' || err.message === 'Network Error' || err.code === 'ECONNABORTED') {
+        return mockLogin(data.username, data.password);
+      }
+      throw err;
     }
-    throw err;
   }
+
+  return mockLogin(data.username, data.password);
 };
 
 export const logout = async () => {
@@ -164,13 +206,19 @@ export const logout = async () => {
 
 export const getMe = async () => {
   const token = typeof localStorage !== 'undefined' ? localStorage.getItem('access_token') : null;
-  if (token && token.startsWith('demo-admin-token-')) {
-    return getMockMe();
+  const isBackendConfigured = hasActiveBackend();
+
+  // If a live cloud backend is active, clear old demo tokens so user logs in cleanly with real credentials
+  if (isBackendConfigured && token && token.startsWith('demo-admin-token-')) {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    throw new Error('Please sign in with your admin credentials to connect to the live cloud database');
   }
+
   try {
     return await api.get('/api/auth/me');
   } catch (err) {
-    if (token && token.startsWith('demo-admin-token-')) {
+    if (!isBackendConfigured && token && token.startsWith('demo-admin-token-')) {
       return getMockMe();
     }
     if (!err.response || err.code === 'ERR_NETWORK' || err.message === 'Network Error' || err.code === 'ECONNABORTED') {
