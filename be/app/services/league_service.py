@@ -177,6 +177,7 @@ def calculate_top_scorers(db: Session, league_id: int) -> List[PlayerStats]:
         player_data.append({
             "player_id": player.id,
             "player_name": player.name,
+            "photo_url": player.photo_url,
             "team_id": player.team_id,
             "team_name": player.team.name,
             "captain_name": player.team.captain_name,

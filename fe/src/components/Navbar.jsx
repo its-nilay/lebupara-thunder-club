@@ -38,27 +38,23 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
-              <motion.div
-                animate={{ rotate: [0, 8, -8, 0] }}
-                transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-              >
-                <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" fill="currentColor" />
-              </motion.div>
+            {/* Official Club Logo */}
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden p-0.5 border border-amber-400/40 bg-slate-950 shadow-md shadow-amber-500/10 group-hover:border-amber-400 transition flex-shrink-0">
+                <img
+                  src="/logo.png"
+                  alt="Lebupara Thunder Club Crest"
+                  className="w-full h-full object-contain"
+                />
+              </div>
               <div className="flex flex-col">
                 <span
-                  className="font-black text-sm sm:text-base tracking-tight leading-none"
-                  style={{
-                    background: 'linear-gradient(135deg, #00e5ff, #76ff03)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
+                  className="font-black text-sm sm:text-base tracking-tight leading-none text-white group-hover:text-amber-400 transition"
                 >
-                  LEBUPARA FC
+                  LEBUPARA <span className="text-neon-cyan">THUNDER CLUB</span>
                 </span>
-                <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider hidden sm:inline">
-                  Thunder League
+                <span className="text-[10px] text-amber-400/90 font-bold uppercase tracking-wider hidden sm:inline">
+                  Official League Portal • Estd. 2017
                 </span>
               </div>
             </Link>

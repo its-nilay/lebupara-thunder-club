@@ -271,6 +271,7 @@ export function getMockTopScorers() {
     goalsCount[p.id] = {
       player_id: p.id,
       player_name: p.name,
+      photo_url: p.photo_url || null,
       team_id: p.team_id,
       team_name: p.team_id === 1 ? store.teams[0].name : store.teams[1].name,
       captain_name: p.team_id === 1 ? store.teams[0].captain_name : store.teams[1].captain_name,

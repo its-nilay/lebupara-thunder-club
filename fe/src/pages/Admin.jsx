@@ -38,6 +38,7 @@ import ScoreModal from '../components/ScoreModal';
 import TeamConfigModal from '../components/TeamConfigModal';
 import PlayerModal from '../components/PlayerModal';
 import MatchDateModal from '../components/MatchDateModal';
+import PlayerAvatar from '../components/PlayerAvatar';
 import { formatMatchDateTime } from '../services/dateUtils';
 import { Link } from 'react-router-dom';
 
@@ -881,7 +882,18 @@ export default function Admin() {
                 <tbody className="divide-y divide-slate-800/80 bg-slate-950/40">
                   {players.map((p) => (
                     <tr key={p.id} className="hover:bg-slate-900/50 transition">
-                      <td className="py-3 px-4 font-bold text-white">{p.name}</td>
+                      <td className="py-3 px-4 font-bold text-white">
+                        <div className="flex items-center gap-3">
+                          <PlayerAvatar
+                            photoUrl={p.photo_url}
+                            name={p.name}
+                            size="sm"
+                            shape="rounded-xl"
+                            className="flex-shrink-0"
+                          />
+                          <span className="truncate">{p.name}</span>
+                        </div>
+                      </td>
                       <td className="py-3 px-4 text-xs font-medium">
                         {p.is_active ? (
                           <span className="text-emerald-400">● Available for selection</span>
@@ -908,9 +920,10 @@ export default function Admin() {
                             setPlayerModalPlayer(p);
                             setPlayerModalOpen(true);
                           }}
-                          className="px-3 py-1 rounded text-xs text-cyan-400 hover:bg-cyan-500/10 font-bold border border-cyan-500/30 transition"
+                          className="px-3 py-1.5 rounded-lg text-xs text-cyan-400 hover:bg-cyan-500/10 font-bold border border-cyan-500/30 transition flex items-center gap-1.5 ml-auto"
                         >
-                          Edit Status
+                          <Edit3 className="w-3.5 h-3.5" />
+                          Edit / Photo
                         </button>
                       </td>
                     </tr>

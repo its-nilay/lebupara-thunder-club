@@ -29,7 +29,18 @@ export default function MainLayout() {
         <Outlet />
       </main>
 
-      <footer className="mt-20 py-8 text-center border-t border-cyan-500/10 text-xs text-slate-500 space-y-3">
+      <footer className="mt-20 py-10 text-center border-t border-cyan-500/10 text-xs text-slate-500 space-y-4">
+        <div className="flex items-center justify-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg overflow-hidden p-0.5 border border-amber-400/40 bg-slate-950 shadow-md">
+            <img src="/logo.png" alt="Lebupara Thunder Club" className="w-full h-full object-contain" />
+          </div>
+          <span className="font-black text-sm text-white tracking-wider">
+            LEBUPARA <span className="text-amber-400">THUNDER CLUB</span>
+          </span>
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+            • Estd. 2017
+          </span>
+        </div>
         <div className="flex items-center justify-center gap-4 text-xs font-semibold flex-wrap">
           <Link to="/" className="text-slate-400 hover:text-cyan-400 transition">Dashboard</Link>
           <span>•</span>
@@ -45,7 +56,7 @@ export default function MainLayout() {
             <Lock className="w-3 h-3" /> Admin Sign In
           </Link>
         </div>
-        <p>⚡ Lebupara Thunder Club League · Built for the beautiful game ⚡</p>
+        <p className="text-slate-500 text-[11px]">⚡ Lebupara Thunder Club League · Built for the beautiful game ⚡</p>
       </footer>
     </div>
   );

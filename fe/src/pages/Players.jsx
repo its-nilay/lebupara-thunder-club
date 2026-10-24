@@ -12,10 +12,12 @@ import {
   Lock,
   CheckCircle2,
   AlertCircle,
+  Camera,
 } from 'lucide-react';
 import { getPlayers, getTopScorers, getStandings, getLeague } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import PlayerModal from '../components/PlayerModal';
+import PlayerAvatar from '../components/PlayerAvatar';
 import { Link } from 'react-router-dom';
 
 export default function Players() {
@@ -209,26 +211,35 @@ export default function Players() {
               </div>
 
               <div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3.5">
                   <div
-                    className={`w-12 h-12 rounded-xl border flex items-center justify-center font-black text-sm uppercase tracking-wider ${
-                      active
-                        ? 'bg-slate-900 border-slate-800 text-cyan-400'
-                        : 'bg-rose-950/20 border-rose-500/40 text-rose-400'
-                    }`}
+                    onClick={() => isAdmin && handleEditPlayer(player)}
+                    className={`relative ${isAdmin ? 'cursor-pointer group' : ''}`}
+                    title={isAdmin ? 'Click to edit player or upload square photo' : ''}
                   >
-                    {player.name?.slice(0, 2).toUpperCase() || 'FC'}
+                    <PlayerAvatar
+                      name={player.name}
+                      photoUrl={player.photo_url}
+                      size="lg"
+                      shape="rounded-2xl"
+                      teamColor={active ? '#00e5ff' : '#ff3d71'}
+                    />
+                    {isAdmin && (
+                      <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                        <Camera className="w-4 h-4 text-cyan-300" />
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <h3 className="font-bold text-white text-base leading-snug">{player.name}</h3>
-                    {/* Status note (injury or active) instead of team name */}
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-white text-base leading-snug truncate">{player.name}</h3>
+                    {/* Status note (injury or active) */}
                     {active ? (
                       <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1 mt-0.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                         Available for match selection
                       </span>
                     ) : (
-                      <span className="text-[11px] text-rose-400 font-semibold mt-0.5 block truncate max-w-[150px]">
+                      <span className="text-[11px] text-rose-400 font-semibold mt-0.5 block truncate max-w-[160px]">
                         {player.status_note ? player.status_note : 'Inactive / Injured'}
                       </span>
                     )}
@@ -249,9 +260,9 @@ export default function Players() {
                 <div className="mt-4 pt-2 border-t border-slate-800/60 flex justify-end">
                   <button
                     onClick={() => handleEditPlayer(player)}
-                    className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1"
+                    className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition"
                   >
-                    <Edit2 className="w-3 h-3" /> Edit Player Status
+                    <Edit2 className="w-3 h-3" /> Edit Details & Photo
                   </button>
                 </div>
               )}

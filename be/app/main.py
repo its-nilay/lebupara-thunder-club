@@ -24,6 +24,14 @@ async def lifespan(app: FastAPI):
     from app.models import models  # noqa
     from app.seed import seed
     Base.metadata.create_all(bind=engine)
+    # Ensure photo_url column exists if database was previously created without it
+    from sqlalchemy import text
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE players ADD COLUMN photo_url TEXT;"))
+            conn.commit()
+    except Exception:
+        pass
     try:
         seed()
     except Exception as e:

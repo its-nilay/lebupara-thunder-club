@@ -41,12 +41,12 @@ export default function Login() {
         <div className="absolute top-0 right-0 -mr-12 -mt-12 w-40 h-40 rounded-full bg-cyan-500/10 blur-2xl pointer-events-none" />
 
         <div className="text-center space-y-2 mb-6">
-          <div className="inline-flex p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 mb-2">
-            <Shield className="w-8 h-8" />
+          <div className="inline-flex p-1.5 rounded-2xl bg-slate-950 border-2 border-amber-400/50 shadow-xl shadow-amber-500/10 mb-2">
+            <img src="/logo.png" alt="Lebupara Thunder Club" className="w-16 h-16 object-contain" />
           </div>
           <h1 className="text-2xl font-black text-white">LEAGUE ADMIN PORTAL</h1>
           <p className="text-xs text-slate-400">
-            Secure access to manage match fixtures, enter live scores, and adjust teams
+            Lebupara Thunder Club • Authorized Management Access
           </p>
         </div>
 

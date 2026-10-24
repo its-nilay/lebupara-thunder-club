@@ -4,6 +4,7 @@ import { X, CheckCircle2, AlertTriangle, Plus, Trash2, Zap, RotateCcw, Calendar,
 import { adminCompleteMatch, adminReopenMatch, adminUpdateMatch } from '../services/api';
 
 import { formatMatchDateTime, toDateTimeLocal, fromDateTimeLocal } from '../services/dateUtils';
+import PlayerAvatar from './PlayerAvatar';
 
 export default function ScoreModal({ match, teams, players, totalMatches, isOpen, onClose, onSuccess }) {
   if (!isOpen || !match) return null;
@@ -433,6 +434,19 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
                         >
                           {isForT1 ? `Side: ${team1.captain_name}` : `Side: ${team2.captain_name}`}
                         </button>
+
+                        {(() => {
+                          const pObj = sortedPlayers.find((p) => p.id === parseInt(scorer.player_id, 10));
+                          return (
+                            <PlayerAvatar
+                              photoUrl={pObj?.photo_url}
+                              name={pObj?.name}
+                              size="xs"
+                              shape="rounded-lg"
+                              teamColor={isForT1 ? '#00e5ff' : '#76ff03'}
+                            />
+                          );
+                        })()}
 
                         <select
                           value={scorer.player_id}

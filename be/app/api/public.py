@@ -145,6 +145,7 @@ def _build_match_out(match: Match, db: Session) -> MatchOut:
             "id": gr.id,
             "player_id": gr.player_id,
             "player_name": player.name if player else "Unknown",
+            "player_photo_url": player.photo_url if player else None,
             "team_id": gr.team_id,
             "goals": gr.goals,
             "is_own_goal": gr.is_own_goal,

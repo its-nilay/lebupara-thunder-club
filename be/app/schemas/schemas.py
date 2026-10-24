@@ -114,6 +114,7 @@ class PlayerCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     team_id: Optional[int] = None
     jersey_number: Optional[int] = None
+    photo_url: Optional[str] = None
     is_active: bool = True
     status_note: Optional[str] = None
 
@@ -129,6 +130,7 @@ class PlayerUpdate(BaseModel):
     name: Optional[str] = None
     team_id: Optional[int] = None
     jersey_number: Optional[int] = None
+    photo_url: Optional[str] = None
     is_active: Optional[bool] = None
     status_note: Optional[str] = None
 
@@ -137,7 +139,8 @@ class PlayerOut(BaseModel):
     id: int
     name: str
     team_id: int
-    jersey_number: Optional[int]
+    jersey_number: Optional[int] = None
+    photo_url: Optional[str] = None
     is_active: bool
     status_note: Optional[str] = None
     team: Optional[TeamOut] = None
@@ -148,6 +151,7 @@ class PlayerOut(BaseModel):
 class PlayerStats(BaseModel):
     player_id: int
     player_name: str
+    photo_url: Optional[str] = None
     team_id: int
     team_name: str
     captain_name: str
@@ -170,6 +174,7 @@ class GoalRecordOut(BaseModel):
     id: int
     player_id: int
     player_name: str
+    player_photo_url: Optional[str] = None
     team_id: int
     goals: int
     is_own_goal: bool

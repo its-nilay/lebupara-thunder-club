@@ -140,6 +140,7 @@ def admin_create_player(
         name=data.name.strip(),
         team_id=team_id,
         jersey_number=data.jersey_number,
+        photo_url=data.photo_url,
         is_active=data.is_active,
         status_note=data.status_note,
     )
@@ -169,6 +170,8 @@ def admin_update_player(
         player.team_id = data.team_id
     if data.jersey_number is not None:
         player.jersey_number = data.jersey_number
+    if data.photo_url is not None:
+        player.photo_url = data.photo_url.strip() if data.photo_url and data.photo_url.strip() else None
     if data.is_active is not None:
         player.is_active = data.is_active
     if data.status_note is not None:

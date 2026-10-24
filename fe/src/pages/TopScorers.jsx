@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Award, Flame, Search, Trophy, Shield, RefreshCw } from 'lucide-react';
 import { getTopScorers, getLeague, getStandings } from '../services/api';
+import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function TopScorers() {
   const [scorers, setScorers] = useState([]);
@@ -128,8 +129,17 @@ export default function TopScorers() {
                 transition={{ delay: 0.1 }}
                 className={`sm:order-1 glass-card p-6 flex flex-col items-center text-center relative overflow-hidden ${props.cardBorder}`}
               >
-                <div className={`w-12 h-12 rounded-full ${props.bg} border-2 ${props.border} flex items-center justify-center font-black ${props.text} text-lg mb-3 shadow-lg`}>
-                  {props.label}
+                <div className="relative mb-3">
+                  <PlayerAvatar
+                    name={top3[1].player_name}
+                    photoUrl={top3[1].photo_url}
+                    size="lg"
+                    shape="rounded-2xl"
+                    teamColor="#cbd5e1"
+                  />
+                  <div className={`absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg ${props.bg} border ${props.border} flex items-center justify-center font-black ${props.text} text-xs shadow-md`}>
+                    {props.label}
+                  </div>
                 </div>
                 <h3 className="text-lg font-bold text-white flex items-center gap-1.5">
                   <span>{top3[1].player_name}</span>
@@ -161,8 +171,17 @@ export default function TopScorers() {
                 <div className="absolute top-3 right-3 text-yellow-400">
                   <Trophy className="w-5 h-5 drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
                 </div>
-                <div className="w-16 h-16 rounded-full bg-yellow-400/20 border-2 border-yellow-400 flex items-center justify-center font-black text-yellow-300 text-2xl mb-3 shadow-lg shadow-yellow-500/20">
-                  👑
+                <div className="relative mb-3">
+                  <PlayerAvatar
+                    name={top3[0].player_name}
+                    photoUrl={top3[0].photo_url}
+                    size="xl"
+                    shape="rounded-2xl"
+                    teamColor="#ffd700"
+                  />
+                  <div className="absolute -top-3.5 -right-2 text-2xl filter drop-shadow">
+                    👑
+                  </div>
                 </div>
                 <h3 className="text-xl font-black text-white flex items-center gap-2">
                   <span>{top3[0].player_name}</span>
@@ -196,8 +215,17 @@ export default function TopScorers() {
                 transition={{ delay: 0.2 }}
                 className={`sm:order-3 glass-card p-6 flex flex-col items-center text-center relative overflow-hidden ${props.cardBorder}`}
               >
-                <div className={`w-12 h-12 rounded-full ${props.bg} border-2 ${props.border} flex items-center justify-center font-black ${props.text} text-lg mb-3 shadow-lg`}>
-                  {props.label}
+                <div className="relative mb-3">
+                  <PlayerAvatar
+                    name={top3[2].player_name}
+                    photoUrl={top3[2].photo_url}
+                    size="lg"
+                    shape="rounded-2xl"
+                    teamColor="#b45309"
+                  />
+                  <div className={`absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg ${props.bg} border ${props.border} flex items-center justify-center font-black ${props.text} text-xs shadow-md`}>
+                    {props.label}
+                  </div>
                 </div>
                 <h3 className="text-lg font-bold text-white flex items-center gap-1.5">
                   <span>{top3[2].player_name}</span>
@@ -273,16 +301,25 @@ export default function TopScorers() {
 
                     {/* Player */}
                     <td className="py-3.5 px-4">
-                      <div className="font-bold text-white text-sm flex items-center gap-2">
-                        <span>{player.player_name}</span>
-                        {isCapt && (
-                          <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-yellow-400/20 text-yellow-400 border border-yellow-400/30">
-                            Captain
-                          </span>
-                        )}
-                        {player.rank === 1 && (
-                          <span className="text-yellow-400 text-xs font-semibold">⚡ Golden Boot</span>
-                        )}
+                      <div className="flex items-center gap-3">
+                        <PlayerAvatar
+                          name={player.player_name}
+                          photoUrl={player.photo_url}
+                          size="sm"
+                          shape="rounded-lg"
+                          teamColor={player.team_color || '#00e5ff'}
+                        />
+                        <div className="font-bold text-white text-sm flex items-center gap-2">
+                          <span>{player.player_name}</span>
+                          {isCapt && (
+                            <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-yellow-400/20 text-yellow-400 border border-yellow-400/30">
+                              Captain
+                            </span>
+                          )}
+                          {player.rank === 1 && (
+                            <span className="text-yellow-400 text-xs font-semibold">⚡ Golden Boot</span>
+                          )}
+                        </div>
                       </div>
                     </td>
 

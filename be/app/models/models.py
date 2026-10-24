@@ -91,6 +91,7 @@ class Player(Base):
     name = Column(String(100), nullable=False)
     team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
     jersey_number = Column(Integer, nullable=True)
+    photo_url = Column(Text, nullable=True)
     is_active = Column(Boolean, default=True)
     status_note = Column(String(255), nullable=True)
     created_at = Column(DateTime(timezone=True), default=utcnow)

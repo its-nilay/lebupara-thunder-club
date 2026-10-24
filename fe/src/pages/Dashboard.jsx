@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { getDashboardStats, getMatches } from '../services/api';
 import { formatMatchDateTime } from '../services/dateUtils';
+import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -75,25 +76,30 @@ export default function Dashboard() {
         <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 rounded-full bg-lime-500/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-wider">
-              <Zap className="w-3.5 h-3.5" />
-              ⚡︎ Official League Center ⚡︎
+          <div className="flex items-start gap-4 max-w-2xl">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden p-1 border-2 border-amber-400/50 bg-slate-950/80 shadow-xl shadow-amber-500/20 flex-shrink-0">
+              <img src="/logo.png" alt="Lebupara Thunder Club Crest" className="w-full h-full object-contain" />
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-              LEBUPARA <span className="text-neon-cyan">THUNDER</span> CLUB
-            </h1>
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              {totalMatches}-Match Showdown between Captain{' '}
-              <strong className="text-cyan-400">
-                {standings[0]?.captain_name || 'Suvradip'}
-              </strong>{' '}
-              and Captain{' '}
-              <strong className="text-lime-400">
-                {standings[1]?.captain_name || 'Arnab'}
-              </strong>
-              . Every goal counts, every point matters.
-            </p>
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-wider">
+                <Zap className="w-3.5 h-3.5" />
+                ⚡︎ Official League Center • Estd. 2017 ⚡︎
+              </div>
+              <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+                LEBUPARA <span className="text-neon-cyan">THUNDER</span> CLUB
+              </h1>
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+                {totalMatches}-Match Showdown between Captain{' '}
+                <strong className="text-cyan-400">
+                  {standings[0]?.captain_name || 'Suvradip'}
+                </strong>{' '}
+                and Captain{' '}
+                <strong className="text-lime-400">
+                  {standings[1]?.captain_name || 'Arnab'}
+                </strong>
+                . Every goal counts, every point matters.
+              </p>
+            </div>
           </div>
 
           <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3">
@@ -374,7 +380,7 @@ export default function Dashboard() {
                   >
                     <div className="flex items-center gap-3">
                       <span
-                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 ${
                           p.rank === 1
                             ? 'bg-yellow-400/20 text-yellow-400 border border-yellow-400/40 shadow-sm shadow-yellow-500/20'
                             : p.rank === 2
@@ -386,6 +392,13 @@ export default function Dashboard() {
                       >
                         {p.rank}
                       </span>
+                      <PlayerAvatar
+                        name={p.player_name}
+                        photoUrl={p.photo_url}
+                        size="sm"
+                        shape="rounded-lg"
+                        teamColor={p.team_color || '#00e5ff'}
+                      />
                       <div>
                         <div className="font-bold text-sm text-white flex items-center gap-1.5">
                           <span>{p.player_name}</span>
