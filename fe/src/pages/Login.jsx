@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, User, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Lock, User, AlertCircle, ArrowLeft, RefreshCw, Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { testBackendConnection } from '../services/api';
 
 export default function Login() {
   const { login } = useAuth();
@@ -12,6 +13,15 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [serverOnline, setServerOnline] = useState(null); // true | false | null
+
+  useEffect(() => {
+    let active = true;
+    testBackendConnection()
+      .then((ok) => { if (active) setServerOnline(ok); })
+      .catch(() => { if (active) setServerOnline(false); });
+    return () => { active = false; };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,6 +42,12 @@ export default function Login() {
         msg = detail;
       } else if (Array.isArray(detail) && detail[0]?.msg) {
         msg = detail[0].msg;
+      } else if (
+        err?.code === 'ERR_NETWORK' ||
+        err?.message === 'Network Error' ||
+        err?.code === 'ECONNABORTED'
+      ) {
+        msg = 'Cloud server is waking up or deploying (Render takes 15-20s on wakeup). Please retry in a few moments.';
       } else if (err?.message) {
         msg = err.message;
       }
@@ -58,6 +74,26 @@ export default function Login() {
           <p className="text-xs text-slate-400">
             Lebupara Thunder Club • Authorized Management Access
           </p>
+
+          <div className="pt-2 flex items-center justify-center">
+            {serverOnline === true && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Render Cloud Database Active
+              </span>
+            )}
+            {serverOnline === false && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                Cloud server waking up...
+              </span>
+            )}
+            {serverOnline === null && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium text-slate-500">
+                <RefreshCw className="w-2.5 h-2.5 animate-spin" /> Checking server...
+              </span>
+            )}
+          </div>
         </div>
 
         {error && (
@@ -107,9 +143,16 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 hover:brightness-110 shadow-lg shadow-cyan-500/25 disabled:opacity-50 transition"
+            className="w-full py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 hover:brightness-110 shadow-lg shadow-cyan-500/25 disabled:opacity-50 transition flex items-center justify-center gap-2"
           >
-            {loading ? 'Authenticating...' : 'Sign In to Admin Panel'}
+            {loading ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
+                Connecting & Authenticating...
+              </>
+            ) : (
+              'Sign In to Admin Panel'
+            )}
           </button>
         </form>
 

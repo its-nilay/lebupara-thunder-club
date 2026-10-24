@@ -184,7 +184,7 @@ export const getDashboardStats = () => withFallback(() => api.get('/api/dashboar
 // Auth
 export const login = async (data) => {
   let lastErr = null;
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 4; i++) {
     try {
       const res = await api.post('/api/auth/login', data);
       return res;
@@ -195,8 +195,8 @@ export const login = async (data) => {
         throw err;
       }
       // If network error / cold start, wait and retry
-      if (i < 2) {
-        await new Promise((r) => setTimeout(r, 2000));
+      if (i < 3) {
+        await new Promise((r) => setTimeout(r, 2500));
       }
     }
   }
