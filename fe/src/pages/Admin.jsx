@@ -119,6 +119,11 @@ export default function Admin() {
     setTimeout(() => setMessage(null), 4000);
   };
 
+  const getPlayerByName = (name) => {
+    if (!name) return null;
+    return players.find((p) => p.name?.toLowerCase().trim() === name?.toLowerCase().trim());
+  };
+
   const handleReopen = async (matchId) => {
     if (!window.confirm('Reopen match? This will restore the match back to Scheduled so you can enter scores or reschedule.')) return;
     try {
@@ -368,8 +373,15 @@ export default function Admin() {
                         <div className="font-bold text-xs sm:text-sm text-white truncate">
                           {t1Name}
                         </div>
-                        <div className="text-[10px] text-cyan-400 truncate">
-                          Capt: {teams[0]?.captain_name || 'Suvradip'}
+                        <div className="text-[10px] text-cyan-400 truncate flex items-center justify-end gap-1.5 mt-0.5">
+                          <span className="truncate">Capt: {teams[0]?.captain_name || 'Suvradip'}</span>
+                          <PlayerAvatar
+                            name={teams[0]?.captain_name || 'Suvradip'}
+                            photoUrl={getPlayerByName(teams[0]?.captain_name || 'Suvradip')?.photo_url}
+                            size="xs"
+                            shape="rounded-full"
+                            teamColor="#00e5ff"
+                          />
                         </div>
                       </div>
 
@@ -395,8 +407,15 @@ export default function Admin() {
                         <div className="font-bold text-xs sm:text-sm text-white truncate">
                           {t2Name}
                         </div>
-                        <div className="text-[10px] text-lime-400 truncate">
-                          Capt: {teams[1]?.captain_name || 'Arnab'}
+                        <div className="text-[10px] text-lime-400 truncate flex items-center justify-start gap-1.5 mt-0.5">
+                          <PlayerAvatar
+                            name={teams[1]?.captain_name || 'Arnab'}
+                            photoUrl={getPlayerByName(teams[1]?.captain_name || 'Arnab')?.photo_url}
+                            size="xs"
+                            shape="rounded-full"
+                            teamColor="#76ff03"
+                          />
+                          <span className="truncate">Capt: {teams[1]?.captain_name || 'Arnab'}</span>
                         </div>
                       </div>
                     </div>
@@ -888,7 +907,7 @@ export default function Admin() {
                             photoUrl={p.photo_url}
                             name={p.name}
                             size="sm"
-                            shape="rounded-xl"
+                            shape="rounded-full"
                             className="flex-shrink-0"
                           />
                           <span className="truncate">{p.name}</span>

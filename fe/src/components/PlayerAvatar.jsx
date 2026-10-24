@@ -1,12 +1,20 @@
+import { useState, useEffect } from 'react';
+
 export default function PlayerAvatar({
   name = '',
   photoUrl = null,
   size = 'md',
   teamColor = '#00e5ff',
-  shape = 'rounded-2xl',
+  shape = 'rounded-full',
   className = '',
   showBorder = true,
 }) {
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [photoUrl]);
+
   const sizeMap = {
     xs: 'w-6 h-6 text-[10px]',
     sm: 'w-8 h-8 text-xs',
@@ -29,23 +37,20 @@ export default function PlayerAvatar({
 
   return (
     <div
-      className={`relative ${currentSizeClass} ${shape} overflow-hidden flex-shrink-0 flex items-center justify-center font-black select-none ${className}`}
+      className={`relative ${currentSizeClass} ${shape} aspect-square overflow-hidden flex-shrink-0 flex items-center justify-center font-black select-none ${className}`}
       style={{
         backgroundColor: `${teamColor}15`,
         border: showBorder ? `2px solid ${teamColor}50` : 'none',
         boxShadow: showBorder ? `0 4px 14px ${teamColor}15` : 'none',
       }}
     >
-      {photoUrl ? (
+      {photoUrl && !imgError ? (
         <img
           src={photoUrl}
           alt={name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover rounded-full"
           loading="lazy"
-          onError={(e) => {
-            // Fallback if photo link fails to load
-            e.currentTarget.style.display = 'none';
-          }}
+          onError={() => setImgError(true)}
         />
       ) : (
         <span
@@ -58,3 +63,4 @@ export default function PlayerAvatar({
     </div>
   );
 }
+

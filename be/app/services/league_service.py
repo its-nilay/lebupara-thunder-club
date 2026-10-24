@@ -200,6 +200,7 @@ def calculate_top_scorers(db: Session, league_id: int) -> List[PlayerStats]:
             PlayerStats(
                 player_id=entry["player_id"],
                 player_name=entry["player_name"],
+                photo_url=entry.get("photo_url"),
                 team_id=entry["team_id"],
                 team_name=entry["team_name"],
                 captain_name=entry["captain_name"],

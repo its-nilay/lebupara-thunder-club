@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Shield, Check, AlertCircle } from 'lucide-react';
 import { adminUpdateTeam } from '../services/api';
+import PlayerAvatar from './PlayerAvatar';
 
 export default function TeamConfigModal({ team, players = [], isOpen, onClose, onSuccess }) {
   if (!isOpen || !team) return null;
@@ -11,6 +12,10 @@ export default function TeamConfigModal({ team, players = [], isOpen, onClose, o
   const [color, setColor] = useState(team.color || '#00e5ff');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const selectedCaptPlayer = players.find(
+    (p) => p.name.trim().toLowerCase() === captainName.trim().toLowerCase()
+  );
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -87,22 +92,33 @@ export default function TeamConfigModal({ team, players = [], isOpen, onClose, o
                 <span className="text-[10px] text-cyan-400 font-bold uppercase">From Squad Roster</span>
               </label>
 
-              <select
-                value={captainName}
-                onChange={(e) => setCaptainName(e.target.value)}
-                required
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-400"
-              >
-                <option value="">-- Choose Captain from Player Roster --</option>
-                {captainName && !players.some((p) => p.name.trim().toLowerCase() === captainName.trim().toLowerCase()) && (
-                  <option value={captainName}>{captainName} (Current)</option>
+              <div className="flex items-center gap-2">
+                {captainName && (
+                  <PlayerAvatar
+                    name={captainName}
+                    photoUrl={selectedCaptPlayer?.photo_url}
+                    size="md"
+                    shape="rounded-full"
+                    teamColor={color}
+                  />
                 )}
-                {players.map((p) => (
-                  <option key={p.id} value={p.name}>
-                    {p.name} {p.is_active ? '⚡ (Active)' : '🤕 (Injured/Inactive)'}
-                  </option>
-                ))}
-              </select>
+                <select
+                  value={captainName}
+                  onChange={(e) => setCaptainName(e.target.value)}
+                  required
+                  className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-400"
+                >
+                  <option value="">-- Choose Captain from Player Roster --</option>
+                  {captainName && !players.some((p) => p.name.trim().toLowerCase() === captainName.trim().toLowerCase()) && (
+                    <option value={captainName}>{captainName} (Current)</option>
+                  )}
+                  {players.map((p) => (
+                    <option key={p.id} value={p.name}>
+                      {p.name} {p.is_active ? '⚡ (Active)' : '🤕 (Injured/Inactive)'}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div>

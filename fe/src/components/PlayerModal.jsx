@@ -134,9 +134,9 @@ export default function PlayerModal({ player, teams, isOpen, onClose, onSuccess 
               <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/90">
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-cyan-400">
-                    <Camera className="w-3.5 h-3.5" /> Player Photo (1:1 Square)
+                    <Camera className="w-3.5 h-3.5" /> Player Photo (Circle Avatar)
                   </span>
-                  <span className="text-[10px] text-slate-400 font-normal">Shown across entire website</span>
+                  <span className="text-[10px] text-slate-400 font-normal">Shown circled across entire website</span>
                 </label>
 
                 <div className="flex items-center gap-3.5">
@@ -146,13 +146,13 @@ export default function PlayerModal({ player, teams, isOpen, onClose, onSuccess 
                       name={name || 'Player'}
                       photoUrl={photoUrl}
                       size="xl"
-                      shape="rounded-2xl"
+                      shape="rounded-full"
                       teamColor="#00e5ff"
                     />
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="absolute inset-0 bg-black/60 rounded-2xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition text-[10px] text-white font-bold backdrop-blur-xs"
+                      className="absolute inset-0 bg-black/60 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition text-[10px] text-white font-bold backdrop-blur-xs cursor-pointer"
                     >
                       <Camera className="w-4 h-4 mb-0.5 text-cyan-400" />
                       Upload
@@ -172,7 +172,7 @@ export default function PlayerModal({ player, teams, isOpen, onClose, onSuccess 
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full px-3 py-2 rounded-xl text-xs font-bold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center gap-1.5 transition active:scale-[0.99]"
+                      className="w-full px-3 py-2 rounded-xl text-xs font-bold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center gap-1.5 transition active:scale-[0.99] cursor-pointer"
                     >
                       <Crop className="w-3.5 h-3.5" />
                       {photoUrl ? 'Crop / Replace Photo' : 'Upload & Crop Photo'}
@@ -182,14 +182,14 @@ export default function PlayerModal({ player, teams, isOpen, onClose, onSuccess 
                       <button
                         type="button"
                         onClick={() => setPhotoUrl(null)}
-                        className="w-full px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 flex items-center justify-center gap-1.5 transition"
+                        className="w-full px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 flex items-center justify-center gap-1.5 transition cursor-pointer"
                       >
                         <Trash2 className="w-3.5 h-3.5" /> Remove Photo
                       </button>
                     )}
 
                     <p className="text-[10px] text-slate-400 leading-tight">
-                      Upload any portrait photo. You can reposition and zoom to create the perfect square crop.
+                      Upload any portrait photo. You can zoom out completely and drag to position the perfect circle avatar.
                     </p>
                   </div>
                 </div>

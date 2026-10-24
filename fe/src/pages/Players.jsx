@@ -214,18 +214,18 @@ export default function Players() {
                 <div className="flex items-center gap-3.5">
                   <div
                     onClick={() => isAdmin && handleEditPlayer(player)}
-                    className={`relative ${isAdmin ? 'cursor-pointer group' : ''}`}
-                    title={isAdmin ? 'Click to edit player or upload square photo' : ''}
+                    className={`relative flex-shrink-0 ${isAdmin ? 'cursor-pointer group' : ''}`}
+                    title={isAdmin ? 'Click to edit player or update photo' : ''}
                   >
                     <PlayerAvatar
                       name={player.name}
                       photoUrl={player.photo_url}
                       size="lg"
-                      shape="rounded-2xl"
+                      shape="rounded-full"
                       teamColor={active ? '#00e5ff' : '#ff3d71'}
                     />
                     {isAdmin && (
-                      <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                      <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
                         <Camera className="w-4 h-4 text-cyan-300" />
                       </div>
                     )}

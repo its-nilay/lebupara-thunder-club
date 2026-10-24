@@ -442,7 +442,7 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
                               photoUrl={pObj?.photo_url}
                               name={pObj?.name}
                               size="xs"
-                              shape="rounded-lg"
+                              shape="rounded-full"
                               teamColor={isForT1 ? '#00e5ff' : '#76ff03'}
                             />
                           );

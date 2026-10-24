@@ -14,25 +14,28 @@ import {
   RefreshCw,
   Clock,
 } from 'lucide-react';
-import { getDashboardStats, getMatches } from '../services/api';
+import { getDashboardStats, getMatches, getPlayers } from '../services/api';
 import { formatMatchDateTime } from '../services/dateUtils';
 import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [matches, setMatches] = useState([]);
+  const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [statsRes, matchesRes] = await Promise.all([
+      const [statsRes, matchesRes, playersRes] = await Promise.all([
         getDashboardStats(),
         getMatches(),
+        getPlayers(),
       ]);
       setStats(statsRes.data);
       setMatches(matchesRes.data || []);
+      setPlayers(playersRes.data || []);
       setError(null);
     } catch (err) {
       setError('Could not connect to backend server. Make sure FastAPI is running.');
@@ -58,6 +61,11 @@ export default function Dashboard() {
   const topScorers = stats?.top_scorers || [];
   const leader = standings[0];
   const goldenBoot = topScorers[0];
+
+  const getPlayerByName = (name) => {
+    if (!name) return null;
+    return players.find((p) => p.name?.toLowerCase().trim() === name?.toLowerCase().trim());
+  };
 
   const completedMatches = matches.filter((m) => m.status === 'completed');
   const upcomingMatches = matches.filter((m) => m.status === 'scheduled');
@@ -150,8 +158,17 @@ export default function Dashboard() {
             <div className="text-xl sm:text-2xl font-black text-white truncate">
               {leader ? leader.team_name : 'TBD'}
             </div>
-            <div className="text-xs text-cyan-400 font-medium">
-              Capt: {leader ? leader.captain_name : '—'} • {leader ? `${leader.pts} Pts` : ''}
+            <div className="text-xs text-cyan-400 font-medium flex items-center gap-1.5 mt-1">
+              {leader?.captain_name && (
+                <PlayerAvatar
+                  name={leader.captain_name}
+                  photoUrl={getPlayerByName(leader.captain_name)?.photo_url}
+                  size="xs"
+                  shape="rounded-full"
+                  teamColor={leader.color || '#00e5ff'}
+                />
+              )}
+              <span>Capt: {leader ? leader.captain_name : '—'} • {leader ? `${leader.pts} Pts` : ''}</span>
             </div>
           </div>
         </div>
@@ -176,12 +193,23 @@ export default function Dashboard() {
             <span>Golden Boot Leader</span>
             <Award className="w-4 h-4 text-yellow-400" />
           </div>
-          <div className="mt-2">
-            <div className="text-xl sm:text-2xl font-black text-white truncate">
-              {goldenBoot ? goldenBoot.player_name : 'None yet'}
-            </div>
-            <div className="text-xs text-yellow-400 font-semibold">
-              {goldenBoot ? `${goldenBoot.total_goals} Goals • Golden Boot Leader` : '—'}
+          <div className="mt-2 flex items-center gap-3">
+            {goldenBoot && (
+              <PlayerAvatar
+                name={goldenBoot.player_name}
+                photoUrl={goldenBoot.photo_url || getPlayerByName(goldenBoot.player_name)?.photo_url}
+                size="md"
+                shape="rounded-full"
+                teamColor="#ffd700"
+              />
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="text-lg sm:text-xl font-black text-white truncate">
+                {goldenBoot ? goldenBoot.player_name : 'None yet'}
+              </div>
+              <div className="text-xs text-yellow-400 font-semibold truncate">
+                {goldenBoot ? `${goldenBoot.total_goals} Goals • Leader` : '—'}
+              </div>
             </div>
           </div>
         </div>
@@ -260,7 +288,16 @@ export default function Dashboard() {
                           />
                           <div>
                             <div className="font-bold text-white text-sm">{s.team_name}</div>
-                            <div className="text-xs text-slate-400">Capt: {s.captain_name}</div>
+                            <div className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                              <PlayerAvatar
+                                name={s.captain_name}
+                                photoUrl={getPlayerByName(s.captain_name)?.photo_url}
+                                size="xs"
+                                shape="rounded-full"
+                                teamColor={s.color || '#00e5ff'}
+                              />
+                              <span>Capt: {s.captain_name}</span>
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -322,14 +359,32 @@ export default function Dashboard() {
                     <div className="font-bold text-sm text-cyan-400 truncate">
                       {standings[0]?.team_name || 'Team 1'}
                     </div>
-                    <div className="text-xs text-slate-400">Capt: {standings[0]?.captain_name || 'Suvradip'}</div>
+                    <div className="text-xs text-slate-400 flex items-center justify-center gap-1.5 mt-0.5">
+                      <PlayerAvatar
+                        name={standings[0]?.captain_name || 'Suvradip'}
+                        photoUrl={getPlayerByName(standings[0]?.captain_name || 'Suvradip')?.photo_url}
+                        size="xs"
+                        shape="rounded-full"
+                        teamColor="#00e5ff"
+                      />
+                      <span className="truncate">Capt: {standings[0]?.captain_name || 'Suvradip'}</span>
+                    </div>
                   </div>
                   <div className="px-3 text-xs font-black text-slate-500">VS</div>
                   <div className="text-center flex-1">
                     <div className="font-bold text-sm text-lime-400 truncate">
                       {standings[1]?.team_name || 'Team 2'}
                     </div>
-                    <div className="text-xs text-slate-400">Capt: {standings[1]?.captain_name || 'Arnab'}</div>
+                    <div className="text-xs text-slate-400 flex items-center justify-center gap-1.5 mt-0.5">
+                      <PlayerAvatar
+                        name={standings[1]?.captain_name || 'Arnab'}
+                        photoUrl={getPlayerByName(standings[1]?.captain_name || 'Arnab')?.photo_url}
+                        size="xs"
+                        shape="rounded-full"
+                        teamColor="#a3e635"
+                      />
+                      <span className="truncate">Capt: {standings[1]?.captain_name || 'Arnab'}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -394,9 +449,9 @@ export default function Dashboard() {
                       </span>
                       <PlayerAvatar
                         name={p.player_name}
-                        photoUrl={p.photo_url}
+                        photoUrl={p.photo_url || getPlayerByName(p.player_name)?.photo_url}
                         size="sm"
-                        shape="rounded-lg"
+                        shape="rounded-full"
                         teamColor={p.team_color || '#00e5ff'}
                       />
                       <div>

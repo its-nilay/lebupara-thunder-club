@@ -10,27 +10,31 @@ import {
   AlertCircle,
   ArrowRight,
 } from 'lucide-react';
-import { getStandings, getLeague, getMatches } from '../services/api';
+import { getStandings, getLeague, getMatches, getPlayers } from '../services/api';
+import PlayerAvatar from '../components/PlayerAvatar';
 import { Link } from 'react-router-dom';
 
 export default function Standings() {
   const [standings, setStandings] = useState([]);
   const [league, setLeague] = useState(null);
   const [matches, setMatches] = useState([]);
+  const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [stdRes, lgRes, mtRes] = await Promise.all([
+      const [stdRes, lgRes, mtRes, pRes] = await Promise.all([
         getStandings(),
         getLeague(),
         getMatches(),
+        getPlayers(),
       ]);
       setStandings(stdRes.data || []);
       setLeague(lgRes.data);
       setMatches(mtRes.data || []);
+      setPlayers(pRes.data || []);
       setError(null);
     } catch (err) {
       setError('Failed to load points table. Please ensure the backend is running.');
@@ -48,6 +52,11 @@ export default function Standings() {
   const matchesPlayed = completedMatches.length;
   const matchesRemaining = Math.max(0, totalMatches - matchesPlayed);
   const maxPointsAvailable = matchesRemaining * 3;
+
+  const getPlayerByName = (name) => {
+    if (!name) return null;
+    return players.find((p) => p.name?.toLowerCase().trim() === name?.toLowerCase().trim());
+  };
 
   // Calculate form guides for each team (last 5 completed matches)
   const getTeamForm = (teamId) => {
@@ -199,16 +208,13 @@ export default function Standings() {
                     {/* Team & Captain */}
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3">
-                        <div
-                          className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shadow-md"
-                          style={{
-                            backgroundColor: `${team.color || '#00e5ff'}20`,
-                            border: `2px solid ${team.color || '#00e5ff'}`,
-                            color: team.color || '#00e5ff',
-                          }}
-                        >
-                          {team.captain_name?.slice(0, 2).toUpperCase() || 'FC'}
-                        </div>
+                        <PlayerAvatar
+                          name={team.captain_name}
+                          photoUrl={getPlayerByName(team.captain_name)?.photo_url}
+                          size="md"
+                          shape="rounded-full"
+                          teamColor={team.color || '#00e5ff'}
+                        />
                         <div>
                           <div className="font-bold text-white text-base flex items-center gap-2">
                             <span>{team.team_name}</span>
@@ -218,8 +224,9 @@ export default function Standings() {
                               </span>
                             )}
                           </div>
-                          <div className="text-xs text-slate-400">
-                            Captain: <span className="text-slate-200 font-semibold">{team.captain_name}</span>
+                          <div className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                            <span>Captain:</span>
+                            <span className="text-slate-200 font-semibold">{team.captain_name}</span>
                           </div>
                         </div>
                       </div>

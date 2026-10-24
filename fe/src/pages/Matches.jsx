@@ -102,6 +102,11 @@ export default function Matches() {
   const totalMatches = league?.total_matches || matches.length || 10;
   const completedCount = matches.filter((m) => m.status === 'completed').length;
 
+  const getPlayerByName = (name) => {
+    if (!name) return null;
+    return players.find((p) => p.name?.toLowerCase().trim() === name?.toLowerCase().trim());
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
       {/* Header */}
@@ -244,7 +249,7 @@ export default function Matches() {
                       <div className="font-bold text-xs sm:text-base text-white truncate">
                         {t1Result?.team_name || teams[0]?.name || 'Team 1'}
                       </div>
-                      <div className="text-[10px] sm:text-[11px] text-cyan-400 truncate">
+                      <div className="text-[10px] sm:text-[11px] text-cyan-400 truncate mt-0.5">
                         Capt: {teams[0]?.captain_name || 'Suvradip'}
                       </div>
                     </div>
@@ -267,7 +272,7 @@ export default function Matches() {
                       <div className="font-bold text-xs sm:text-base text-white truncate">
                         {t2Result?.team_name || teams[1]?.name || 'Team 2'}
                       </div>
-                      <div className="text-[10px] sm:text-[11px] text-lime-400 truncate">
+                      <div className="text-[10px] sm:text-[11px] text-lime-400 truncate mt-0.5">
                         Capt: {teams[1]?.captain_name || 'Arnab'}
                       </div>
                     </div>
@@ -277,44 +282,22 @@ export default function Matches() {
                   {match.status === 'completed' && match.goal_records && match.goal_records.length > 0 && (
                     <div className="mt-3 pt-2.5 border-t border-slate-800/80 grid grid-cols-2 text-xs text-slate-400">
                       <div className="text-right pr-3 space-y-1">
-                        {t1Scorers.map((g, i) => {
-                          const pObj = players.find((p) => p.id === g.player_id);
-                          const photo = g.player_photo_url || pObj?.photo_url;
-                          return (
-                            <div key={i} className="flex items-center justify-end gap-1.5">
-                              <span className="truncate">{g.player_name}</span>
-                              <PlayerAvatar
-                                photoUrl={photo}
-                                name={g.player_name}
-                                size="xs"
-                                shape="rounded-md"
-                                teamColor="#00e5ff"
-                              />
-                              <span className="text-yellow-400 font-bold whitespace-nowrap">⚽ {g.goals > 1 ? `x${g.goals}` : ''}</span>
-                              {g.is_own_goal && <span className="text-rose-400 text-[10px]">(OG)</span>}
-                            </div>
-                          );
-                        })}
+                        {t1Scorers.map((g, i) => (
+                          <div key={i} className="flex items-center justify-end gap-1.5">
+                            <span className="truncate">{g.player_name}</span>
+                            <span className="text-yellow-400 font-bold whitespace-nowrap">⚽ {g.goals > 1 ? `x${g.goals}` : ''}</span>
+                            {g.is_own_goal && <span className="text-rose-400 text-[10px]">(OG)</span>}
+                          </div>
+                        ))}
                       </div>
                       <div className="text-left pl-3 space-y-1 border-l border-slate-800">
-                        {t2Scorers.map((g, i) => {
-                          const pObj = players.find((p) => p.id === g.player_id);
-                          const photo = g.player_photo_url || pObj?.photo_url;
-                          return (
-                            <div key={i} className="flex items-center gap-1.5">
-                              <span className="text-yellow-400 font-bold whitespace-nowrap">⚽ {g.goals > 1 ? `x${g.goals}` : ''}</span>
-                              <PlayerAvatar
-                                photoUrl={photo}
-                                name={g.player_name}
-                                size="xs"
-                                shape="rounded-md"
-                                teamColor="#76ff03"
-                              />
-                              <span className="truncate">{g.player_name}</span>
-                              {g.is_own_goal && <span className="text-rose-400 text-[10px]">(OG)</span>}
-                            </div>
-                          );
-                        })}
+                        {t2Scorers.map((g, i) => (
+                          <div key={i} className="flex items-center gap-1.5">
+                            <span className="text-yellow-400 font-bold whitespace-nowrap">⚽ {g.goals > 1 ? `x${g.goals}` : ''}</span>
+                            <span className="truncate">{g.player_name}</span>
+                            {g.is_own_goal && <span className="text-rose-400 text-[10px]">(OG)</span>}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}

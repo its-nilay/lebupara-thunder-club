@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Award, Flame, Search, Trophy, Shield, RefreshCw } from 'lucide-react';
-import { getTopScorers, getLeague, getStandings } from '../services/api';
+import { getTopScorers, getLeague, getStandings, getPlayers } from '../services/api';
 import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function TopScorers() {
   const [scorers, setScorers] = useState([]);
+  const [players, setPlayers] = useState([]);
   const [league, setLeague] = useState(null);
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,14 +15,16 @@ export default function TopScorers() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [scRes, lgRes, stdRes] = await Promise.all([
+      const [scRes, lgRes, stdRes, pRes] = await Promise.all([
         getTopScorers(),
         getLeague(),
         getStandings(),
+        getPlayers(),
       ]);
       setScorers(scRes.data || []);
       setLeague(lgRes.data);
       setStandings(stdRes.data || []);
+      setPlayers(pRes.data || []);
     } catch {
       // Handled silently
     } finally {
@@ -88,6 +91,17 @@ export default function TopScorers() {
       (s) => s.captain_name?.toLowerCase() === playerName?.toLowerCase()
     );
 
+  const getPlayerPhoto = (scorer) => {
+    if (!scorer) return null;
+    if (scorer.photo_url) return scorer.photo_url;
+    const p = players.find(
+      (pl) =>
+        pl.id === scorer.player_id ||
+        pl.name?.toLowerCase().trim() === (scorer.player_name || '').toLowerCase().trim()
+    );
+    return p?.photo_url || null;
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
       {/* Header */}
@@ -132,12 +146,12 @@ export default function TopScorers() {
                 <div className="relative mb-3">
                   <PlayerAvatar
                     name={top3[1].player_name}
-                    photoUrl={top3[1].photo_url}
+                    photoUrl={getPlayerPhoto(top3[1])}
                     size="lg"
-                    shape="rounded-2xl"
+                    shape="rounded-full"
                     teamColor="#cbd5e1"
                   />
-                  <div className={`absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg ${props.bg} border ${props.border} flex items-center justify-center font-black ${props.text} text-xs shadow-md`}>
+                  <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full ${props.bg} border ${props.border} flex items-center justify-center font-black ${props.text} text-xs shadow-md`}>
                     {props.label}
                   </div>
                 </div>
@@ -174,9 +188,9 @@ export default function TopScorers() {
                 <div className="relative mb-3">
                   <PlayerAvatar
                     name={top3[0].player_name}
-                    photoUrl={top3[0].photo_url}
+                    photoUrl={getPlayerPhoto(top3[0])}
                     size="xl"
-                    shape="rounded-2xl"
+                    shape="rounded-full"
                     teamColor="#ffd700"
                   />
                   <div className="absolute -top-3.5 -right-2 text-2xl filter drop-shadow">
@@ -218,12 +232,12 @@ export default function TopScorers() {
                 <div className="relative mb-3">
                   <PlayerAvatar
                     name={top3[2].player_name}
-                    photoUrl={top3[2].photo_url}
+                    photoUrl={getPlayerPhoto(top3[2])}
                     size="lg"
-                    shape="rounded-2xl"
+                    shape="rounded-full"
                     teamColor="#b45309"
                   />
-                  <div className={`absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-lg ${props.bg} border ${props.border} flex items-center justify-center font-black ${props.text} text-xs shadow-md`}>
+                  <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full ${props.bg} border ${props.border} flex items-center justify-center font-black ${props.text} text-xs shadow-md`}>
                     {props.label}
                   </div>
                 </div>
@@ -304,9 +318,9 @@ export default function TopScorers() {
                       <div className="flex items-center gap-3">
                         <PlayerAvatar
                           name={player.player_name}
-                          photoUrl={player.photo_url}
+                          photoUrl={getPlayerPhoto(player)}
                           size="sm"
-                          shape="rounded-lg"
+                          shape="rounded-full"
                           teamColor={player.team_color || '#00e5ff'}
                         />
                         <div className="font-bold text-white text-sm flex items-center gap-2">
