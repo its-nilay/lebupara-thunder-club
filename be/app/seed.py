@@ -84,55 +84,8 @@ def seed():
         if matches_count == 0:
             now = datetime.now(timezone.utc)
             matches_data = [
-                # Match 1: Suvradip 3 - 2 Arnab (Completed)
-                {
-                    "num": 1,
-                    "date": now - timedelta(days=6),
-                    "status": MatchStatus.completed,
-                    "notes": "Thrilling opening derby! Suvradip scored a brace.",
-                    "t1_score": 3,
-                    "t2_score": 2,
-                    "goals": [
-                        (all_players["Suvradip"].id, team1.id, 2, False),
-                        (all_players["Nilay"].id, team1.id, 1, False),
-                        (all_players["Arnab"].id, team2.id, 1, False),
-                        (all_players["Subhajit"].id, team2.id, 1, False),
-                    ]
-                },
-                # Match 2: Suvradip 1 - 1 Arnab (Completed Draw - 1 pt each)
-                {
-                    "num": 2,
-                    "date": now - timedelta(days=4),
-                    "status": MatchStatus.completed,
-                    "notes": "Tight tactical battle ending in a 1-1 draw.",
-                    "t1_score": 1,
-                    "t2_score": 1,
-                    "goals": [
-                        (all_players["Rahul"].id, team1.id, 1, False),
-                        (all_players["Dipayan"].id, team2.id, 1, False),
-                    ]
-                },
-                # Match 3: Suvradip 1 - 2 Arnab (Completed - Arnab win)
-                {
-                    "num": 3,
-                    "date": now - timedelta(days=2),
-                    "status": MatchStatus.completed,
-                    "notes": "Comeback victory for Arnab with 2 late goals.",
-                    "t1_score": 1,
-                    "t2_score": 2,
-                    "goals": [
-                        (all_players["Suvradip"].id, team1.id, 1, False),
-                        (all_players["Arnab"].id, team2.id, 2, False),
-                    ]
-                },
-                # Matches 4 to 10 scheduled
-                {"num": 4, "date": now + timedelta(days=1), "status": MatchStatus.scheduled, "notes": "Clash of the Titans Part 4"},
-                {"num": 5, "date": now + timedelta(days=3), "status": MatchStatus.scheduled, "notes": "Mid-season showcase fixture"},
-                {"num": 6, "date": now + timedelta(days=5), "status": MatchStatus.scheduled, "notes": "Second-half opener"},
-                {"num": 7, "date": now + timedelta(days=7), "status": MatchStatus.scheduled, "notes": "Weekend evening showdown"},
-                {"num": 8, "date": now + timedelta(days=9), "status": MatchStatus.scheduled, "notes": "High-stakes title race"},
-                {"num": 9, "date": now + timedelta(days=11), "status": MatchStatus.scheduled, "notes": "Penultimate derby match"},
-                {"num": 10, "date": now + timedelta(days=13), "status": MatchStatus.scheduled, "notes": "Grand League Finale!"},
+                {"num": i + 1, "date": now + timedelta(days=(i * 2)), "status": MatchStatus.scheduled, "notes": f"Match #{i + 1}" if i > 0 else "Opening Derby Fixture"}
+                for i in range(10)
             ]
 
             for m in matches_data:
@@ -142,19 +95,12 @@ def seed():
                     match_date=m["date"],
                     status=m["status"],
                     notes=m.get("notes"),
-                    completed_at=m["date"] if m["status"] == MatchStatus.completed else None
+                    completed_at=None
                 )
                 db.add(match)
-                db.flush()
-
-                if m["status"] == MatchStatus.completed:
-                    db.add(MatchTeamResult(match_id=match.id, team_id=team1.id, goals_scored=m["t1_score"]))
-                    db.add(MatchTeamResult(match_id=match.id, team_id=team2.id, goals_scored=m["t2_score"]))
-                    for pid, tid, goals, own in m.get("goals", []):
-                        db.add(GoalRecord(match_id=match.id, player_id=pid, team_id=tid, goals=goals, is_own_goal=own))
 
             db.commit()
-            print("Created all 10 league matches (3 completed, 7 scheduled)")
+            print("Created all 10 league matches scheduled for the new season")
 
         # Admin user (Default admin login: admin / Admin@123)
         admin = db.query(User).filter(User.username == "admin").first()

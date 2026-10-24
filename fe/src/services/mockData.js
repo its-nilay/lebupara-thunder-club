@@ -8,7 +8,13 @@
 
 import playerPhotos from './playerPhotos.json';
 
-const STORAGE_KEY = 'ltc_league_offline_data_v1';
+const STORAGE_KEY = 'ltc_league_offline_data_v2';
+
+if (typeof localStorage !== 'undefined') {
+  try {
+    localStorage.removeItem('ltc_league_offline_data_v1');
+  } catch {}
+}
 
 const INITIAL_DATA = {
   league: {
@@ -42,137 +48,16 @@ const INITIAL_DATA = {
     { id: 16, name: 'Raj', team_id: 2, jersey_number: 8, is_active: false, status_note: 'Ankle recovery' },
   ],
   matches: [
-    {
-      id: 1,
-      match_number: 1,
-      match_date: '2026-10-18T07:00:00',
-      status: 'completed',
-      notes: 'Thrilling opening derby! High intensity match.',
-      team_results: [
-        { team_id: 1, team_name: 'Team Suvradip', goals_scored: 3 },
-        { team_id: 2, team_name: 'Team Arnab', goals_scored: 2 },
-      ],
-      goal_records: [
-        { id: 1, player_id: 1, player_name: 'Suvradip', team_id: 1, goals: 2, is_own_goal: false },
-        { id: 2, player_id: 2, player_name: 'Nilay', team_id: 1, goals: 1, is_own_goal: false },
-        { id: 3, player_id: 9, player_name: 'Arnab', team_id: 2, goals: 1, is_own_goal: false },
-        { id: 4, player_id: 10, player_name: 'Subhajit', team_id: 2, goals: 1, is_own_goal: false },
-      ],
-    },
-    {
-      id: 2,
-      match_number: 2,
-      match_date: '2026-10-20T07:00:00',
-      status: 'completed',
-      notes: 'Tight tactical battle ending in a 1-1 draw.',
-      team_results: [
-        { team_id: 1, team_name: 'Team Suvradip', goals_scored: 1 },
-        { team_id: 2, team_name: 'Team Arnab', goals_scored: 1 },
-      ],
-      goal_records: [
-        { id: 5, player_id: 3, player_name: 'Rahul', team_id: 1, goals: 1, is_own_goal: false },
-        { id: 6, player_id: 11, player_name: 'Dipayan', team_id: 2, goals: 1, is_own_goal: false },
-      ],
-    },
-    {
-      id: 3,
-      match_number: 3,
-      match_date: '2026-10-22T07:00:00',
-      status: 'completed',
-      notes: 'Comeback victory for Arnab with late goals.',
-      team_results: [
-        { team_id: 1, team_name: 'Team Suvradip', goals_scored: 1 },
-        { team_id: 2, team_name: 'Team Arnab', goals_scored: 2 },
-      ],
-      goal_records: [
-        { id: 7, player_id: 1, player_name: 'Suvradip', team_id: 1, goals: 1, is_own_goal: false },
-        { id: 8, player_id: 9, player_name: 'Arnab', team_id: 2, goals: 2, is_own_goal: false },
-      ],
-    },
-    {
-      id: 4,
-      match_number: 4,
-      match_date: '2026-10-25T07:30:00',
-      status: 'scheduled',
-      notes: 'Clash of the Titans Part 4',
-      team_results: [
-        { team_id: 1, team_name: 'Team Suvradip', goals_scored: 0 },
-        { team_id: 2, team_name: 'Team Arnab', goals_scored: 0 },
-      ],
-      goal_records: [],
-    },
-    {
-      id: 5,
-      match_number: 5,
-      match_date: '2026-10-27T07:00:00',
-      status: 'scheduled',
-      notes: 'Mid-season showcase fixture',
-      team_results: [
-        { team_id: 1, team_name: 'Team Suvradip', goals_scored: 0 },
-        { team_id: 2, team_name: 'Team Arnab', goals_scored: 0 },
-      ],
-      goal_records: [],
-    },
-    {
-      id: 6,
-      match_number: 6,
-      match_date: '2026-10-29T07:00:00',
-      status: 'scheduled',
-      notes: 'Second-half opener',
-      team_results: [
-        { team_id: 1, team_name: 'Team Suvradip', goals_scored: 0 },
-        { team_id: 2, team_name: 'Team Arnab', goals_scored: 0 },
-      ],
-      goal_records: [],
-    },
-    {
-      id: 7,
-      match_number: 7,
-      match_date: '2026-10-31T07:00:00',
-      status: 'scheduled',
-      notes: 'Weekend evening showdown',
-      team_results: [
-        { team_id: 1, team_name: 'Team Suvradip', goals_scored: 0 },
-        { team_id: 2, team_name: 'Team Arnab', goals_scored: 0 },
-      ],
-      goal_records: [],
-    },
-    {
-      id: 8,
-      match_number: 8,
-      match_date: '2026-11-02T07:00:00',
-      status: 'scheduled',
-      notes: 'High-stakes title race',
-      team_results: [
-        { team_id: 1, team_name: 'Team Suvradip', goals_scored: 0 },
-        { team_id: 2, team_name: 'Team Arnab', goals_scored: 0 },
-      ],
-      goal_records: [],
-    },
-    {
-      id: 9,
-      match_number: 9,
-      match_date: '2026-11-04T07:00:00',
-      status: 'scheduled',
-      notes: 'Penultimate derby match',
-      team_results: [
-        { team_id: 1, team_name: 'Team Suvradip', goals_scored: 0 },
-        { team_id: 2, team_name: 'Team Arnab', goals_scored: 0 },
-      ],
-      goal_records: [],
-    },
-    {
-      id: 10,
-      match_number: 10,
-      match_date: '2026-11-06T07:00:00',
-      status: 'scheduled',
-      notes: 'Grand League Finale!',
-      team_results: [
-        { team_id: 1, team_name: 'Team Suvradip', goals_scored: 0 },
-        { team_id: 2, team_name: 'Team Arnab', goals_scored: 0 },
-      ],
-      goal_records: [],
-    },
+    { id: 1, match_number: 1, match_date: '2026-10-24T07:00:00', status: 'scheduled', notes: 'Opening Derby Fixture', team_results: [], goal_records: [] },
+    { id: 2, match_number: 2, match_date: '2026-10-26T07:00:00', status: 'scheduled', notes: 'Match #2', team_results: [], goal_records: [] },
+    { id: 3, match_number: 3, match_date: '2026-10-28T07:00:00', status: 'scheduled', notes: 'Match #3', team_results: [], goal_records: [] },
+    { id: 4, match_number: 4, match_date: '2026-10-30T07:00:00', status: 'scheduled', notes: 'Match #4', team_results: [], goal_records: [] },
+    { id: 5, match_number: 5, match_date: '2026-11-01T07:00:00', status: 'scheduled', notes: 'Match #5', team_results: [], goal_records: [] },
+    { id: 6, match_number: 6, match_date: '2026-11-03T07:00:00', status: 'scheduled', notes: 'Match #6', team_results: [], goal_records: [] },
+    { id: 7, match_number: 7, match_date: '2026-11-05T07:00:00', status: 'scheduled', notes: 'Match #7', team_results: [], goal_records: [] },
+    { id: 8, match_number: 8, match_date: '2026-11-07T07:00:00', status: 'scheduled', notes: 'Match #8', team_results: [], goal_records: [] },
+    { id: 9, match_number: 9, match_date: '2026-11-09T07:00:00', status: 'scheduled', notes: 'Match #9', team_results: [], goal_records: [] },
+    { id: 10, match_number: 10, match_date: '2026-11-11T07:00:00', status: 'scheduled', notes: 'Grand League Finale!', team_results: [], goal_records: [] },
   ],
 };
 

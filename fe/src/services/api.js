@@ -34,19 +34,23 @@ export const getActiveApiUrl = () => {
   if (import.meta.env.VITE_API_BASE_URL && import.meta.env.VITE_API_BASE_URL.trim()) {
     return import.meta.env.VITE_API_BASE_URL.trim().replace(/\/+$/, '');
   }
-  if (
-    typeof window !== 'undefined' &&
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ) {
-    return 'http://localhost:8000';
-  }
   return 'https://lebupara-thunder-club.onrender.com';
 };
 
 export const hasActiveBackend = () => {
-  const url = getActiveApiUrl();
-  return Boolean(url && !url.includes('localhost') && !url.includes('127.0.0.1'));
+  return true;
 };
+
+// Purge any stale demo tokens so user always authenticates with real cloud JWT
+if (typeof localStorage !== 'undefined') {
+  try {
+    const token = localStorage.getItem('access_token');
+    if (token && token.startsWith('demo-admin-token-')) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+    }
+  } catch {}
+}
 
 export const setCustomApiUrl = (url) => {
   if (typeof window !== 'undefined') {
@@ -70,7 +74,7 @@ export const testBackendConnection = async (targetUrl) => {
 const api = axios.create({
   baseURL: getActiveApiUrl(),
   headers: { 'Content-Type': 'application/json' },
-  timeout: 30000,
+  timeout: 45000,
 });
 
 // Attach JWT token from localStorage and ensure latest baseURL
@@ -179,27 +183,24 @@ export const getDashboardStats = () => withFallback(() => api.get('/api/dashboar
 
 // Auth
 export const login = async (data) => {
-  const isBackendConfigured = hasActiveBackend();
-
-  if (isBackendConfigured) {
+  let lastErr = null;
+  for (let i = 0; i < 3; i++) {
     try {
       const res = await api.post('/api/auth/login', data);
       return res;
     } catch (err) {
-      if (
-        !err.response ||
-        err.code === 'ERR_NETWORK' ||
-        err.message === 'Network Error' ||
-        err.code === 'ECONNABORTED' ||
-        (data.username === 'admin' && (data.password === 'Admin@123' || data.password === 'Admin@123456'))
-      ) {
-        return mockLogin(data.username, data.password);
+      lastErr = err;
+      // If credentials rejected or bad request, do not retry
+      if (err.response?.status === 401 || err.response?.status === 400 || err.response?.status === 422) {
+        throw err;
       }
-      throw err;
+      // If network error / cold start, wait and retry
+      if (i < 2) {
+        await new Promise((r) => setTimeout(r, 2000));
+      }
     }
   }
-
-  return mockLogin(data.username, data.password);
+  throw lastErr;
 };
 
 export const logout = async () => {
@@ -211,57 +212,30 @@ export const logout = async () => {
 };
 
 export const getMe = async () => {
-  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('access_token') : null;
-
-  if (token && token.startsWith('demo-admin-token-')) {
-    return getMockMe();
-  }
-
-  try {
-    return await api.get('/api/auth/me');
-  } catch (err) {
-    if (token) {
-      return getMockMe();
-    }
-    throw err;
-  }
+  return await api.get('/api/auth/me');
 };
 
 export const refreshToken = (refresh_token) => api.post('/api/auth/refresh', { refresh_token });
 
-// Admin - Matches
-export const adminCreateMatch = (data) =>
-  withFallback(() => api.post('/api/admin/matches', data), () => mockAddNextMatch());
-export const adminAddNextMatch = () =>
-  withFallback(() => api.post('/api/admin/matches/add-next'), mockAddNextMatch);
-export const adminDeleteMatch = (id) =>
-  withFallback(() => api.delete(`/api/admin/matches/${id}`), () => mockDeleteMatch(id));
-export const adminUpdateMatch = (id, data) =>
-  withFallback(() => api.patch(`/api/admin/matches/${id}`, data), () => mockUpdateMatch(id, data));
-export const adminSaveResult = (id, data) =>
-  withFallback(() => api.put(`/api/admin/matches/${id}/result`, data), () => mockSaveResult(id, data));
-export const adminCompleteMatch = (id, data) =>
-  withFallback(() => api.post(`/api/admin/matches/${id}/complete`, data), () => mockCompleteMatch(id, data));
-export const adminReopenMatch = (id) =>
-  withFallback(() => api.post(`/api/admin/matches/${id}/reopen`), () => mockReopenMatch(id));
-export const adminPostponeMatch = (id) =>
-  withFallback(() => api.post(`/api/admin/matches/${id}/postpone`), () => mockPostponeMatch(id));
+// Admin - Matches (Direct live backend execution ensures immediate cloud sync across all devices)
+export const adminCreateMatch = (data) => api.post('/api/admin/matches', data);
+export const adminAddNextMatch = () => api.post('/api/admin/matches/add-next');
+export const adminDeleteMatch = (id) => api.delete(`/api/admin/matches/${id}`);
+export const adminUpdateMatch = (id, data) => api.patch(`/api/admin/matches/${id}`, data);
+export const adminSaveResult = (id, data) => api.put(`/api/admin/matches/${id}/result`, data);
+export const adminCompleteMatch = (id, data) => api.post(`/api/admin/matches/${id}/complete`, data);
+export const adminReopenMatch = (id) => api.post(`/api/admin/matches/${id}/reopen`);
+export const adminPostponeMatch = (id) => api.post(`/api/admin/matches/${id}/postpone`);
 
 // Admin - Players
-export const adminCreatePlayer = (data) =>
-  withFallback(() => api.post('/api/admin/players', data), () => mockCreatePlayer(data));
-export const adminUpdatePlayer = (id, data) =>
-  withFallback(() => api.patch(`/api/admin/players/${id}`, data), () => mockUpdatePlayer(id, data));
+export const adminCreatePlayer = (data) => api.post('/api/admin/players', data);
+export const adminUpdatePlayer = (id, data) => api.patch(`/api/admin/players/${id}`, data);
 
 // Admin - Teams & League
-export const adminCreateTeam = (data) =>
-  withFallback(() => api.post('/api/admin/teams', data), () => mockCreateTeam(data));
-export const adminUpdateTeam = (id, data) =>
-  withFallback(() => api.patch(`/api/admin/teams/${id}`, data), () => mockUpdateTeam(id, data));
-export const adminUpdateLeague = (data) =>
-  withFallback(() => api.patch('/api/admin/league', data), () => mockUpdateLeague(data));
-export const adminResetSeason = () =>
-  withFallback(() => api.post('/api/admin/league/reset-season'), mockResetSeason);
+export const adminCreateTeam = (data) => api.post('/api/admin/teams', data);
+export const adminUpdateTeam = (id, data) => api.patch(`/api/admin/teams/${id}`, data);
+export const adminUpdateLeague = (data) => api.patch('/api/admin/league', data);
+export const adminResetSeason = () => api.post('/api/admin/league/reset-season');
 
 // Admin - Audit
 export const getAuditLogs = (params) =>
