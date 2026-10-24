@@ -133,8 +133,8 @@ Open `http://localhost:5173` in your browser.
 
 ### 4. Admin Credentials
 - **Username**: `admin`
-- **Password**: `Admin@123456`
-*(A one-click "Demo Admin Credentials" button is also provided on the `/login` page).*
+- **Password**: `Admin@123`
+*(Database auto-seeds on application startup so these credentials and the 10 fixtures are immediately active).*
 
 ---
 

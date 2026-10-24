@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, Zap, Lock, User, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Shield, Lock, User, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -29,12 +29,6 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleFillDemo = () => {
-    setUsername('admin');
-    setPassword('Admin@123456');
-    setError(null);
   };
 
   return (
@@ -103,17 +97,6 @@ export default function Login() {
           </button>
         </form>
 
-        {/* Demo credentials helper */}
-        <div className="mt-6 pt-5 border-t border-slate-800 text-center">
-          <p className="text-xs text-slate-400 mb-2">Need quick test access?</p>
-          <button
-            type="button"
-            onClick={handleFillDemo}
-            className="w-full py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-cyan-400 flex items-center justify-center gap-1.5 transition"
-          >
-            <Zap className="w-3.5 h-3.5" /> Auto-fill Demo Admin Credentials (admin)
-          </button>
-        </div>
 
         <div className="mt-4 text-center">
           <Link to="/" className="text-xs text-slate-400 hover:text-white flex items-center justify-center gap-1">

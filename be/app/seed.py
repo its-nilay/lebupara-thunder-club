@@ -156,11 +156,16 @@ def seed():
             db.commit()
             print("Created all 10 league matches (3 completed, 7 scheduled)")
 
-        # Admin user
+        # Admin user (Default admin login: admin / Admin@123)
         admin = db.query(User).filter(User.username == "admin").first()
+        from app.core.security import hash_password
         if not admin:
-            create_admin_user(db, username="admin", password="Admin@123456", email="admin@lebupara.club")
-            print("Created admin user 'admin' with password 'Admin@123456'")
+            create_admin_user(db, username="admin", password="Admin@123", email="admin@lebupara.club")
+            print("Created default admin user 'admin' with password 'Admin@123'")
+        else:
+            admin.hashed_password = hash_password("Admin@123")
+            db.commit()
+            print("Updated default admin user 'admin' with password 'Admin@123'")
 
     finally:
         db.close()

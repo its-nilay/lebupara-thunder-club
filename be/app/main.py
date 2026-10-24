@@ -19,10 +19,15 @@ limiter = Limiter(key_func=get_remote_address)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Create tables on startup."""
+    """Create tables and ensure initial seed data exists on startup."""
     from app.db.database import engine, Base
     from app.models import models  # noqa
+    from app.seed import seed
     Base.metadata.create_all(bind=engine)
+    try:
+        seed()
+    except Exception as e:
+        print(f"Auto-seed notification: {e}")
     yield
 
 

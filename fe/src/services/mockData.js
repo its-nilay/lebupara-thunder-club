@@ -332,7 +332,7 @@ export function getMockDashboardStats() {
 }
 
 export function mockLogin(username, password) {
-  if (username === 'admin' && password === 'Admin@123456') {
+  if (username === 'admin' && password === 'Admin@123') {
     return {
       data: {
         access_token: 'demo-admin-token-' + Date.now(),
