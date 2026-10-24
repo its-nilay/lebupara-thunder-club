@@ -123,8 +123,26 @@ export const getPlayers = (params) => api.get('/api/players', { params });
 export const getPlayer = (id) => api.get(`/api/players/${id}`);
 export const getDashboardStats = () => api.get('/api/dashboard/stats');
 
-// Auth
-export const login = (data) => api.post('/api/auth/login', data);
+// Auth — retries on network error so Render cold-start doesn't block login
+export const login = async (data) => {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      return await api.post('/api/auth/login', data);
+    } catch (err) {
+      // Auth rejection — fail immediately, no point retrying
+      if (err.response?.status === 401 || err.response?.status === 422 || err.response?.status === 400) {
+        throw err;
+      }
+      // Network error = server still waking. Wait and retry.
+      const isNetworkErr = !err.response || err.code === 'ERR_NETWORK' || err.code === 'ECONNABORTED';
+      if (isNetworkErr && attempt < 3) {
+        await new Promise((r) => setTimeout(r, 5000));
+        continue;
+      }
+      throw err;
+    }
+  }
+};
 
 export const logout = async () => {
   try {

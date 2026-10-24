@@ -11,6 +11,7 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingMsg, setLoadingMsg] = useState('Signing in...');
   const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
@@ -21,6 +22,11 @@ export default function Login() {
     }
     setLoading(true);
     setError(null);
+    setLoadingMsg('Signing in...');
+
+    // After 6s of loading, show a "waking server" message so user knows it's working
+    const wakeTimer = setTimeout(() => setLoadingMsg('Waking cloud server... please wait (~20s)'), 6000);
+
     try {
       await login(username.trim(), password);
       navigate('/admin');
@@ -29,19 +35,15 @@ export default function Login() {
       const detail = err?.response?.data?.detail;
       if (status === 401 || status === 403) {
         setError('Invalid username or password.');
-      } else if (
-        err?.code === 'ERR_NETWORK' ||
-        err?.message === 'Network Error' ||
-        err?.code === 'ECONNABORTED'
-      ) {
-        setError('Server is waking up. Please wait a moment and try again.');
       } else if (typeof detail === 'string') {
         setError(detail);
       } else {
-        setError('Login failed. Please try again.');
+        setError('Could not connect to server. Please try again.');
       }
     } finally {
+      clearTimeout(wakeTimer);
       setLoading(false);
+      setLoadingMsg('Signing in...');
     }
   };
 
@@ -116,7 +118,7 @@ export default function Login() {
             {loading ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                Signing in...
+                {loadingMsg}
               </>
             ) : (
               'Sign In'
