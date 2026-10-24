@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import MainLayout from './layouts/MainLayout';
+import { useEffect } from 'react';
+import { wakeServer } from './services/api';
 
 import Dashboard from './pages/Dashboard';
 import Standings from './pages/Standings';
@@ -11,6 +13,12 @@ import Login from './pages/Login';
 import Admin from './pages/Admin';
 
 export default function App() {
+  // Wake the Render server immediately on app load so all data is live-synced
+  useEffect(() => {
+    const cancel = wakeServer();
+    return cancel;
+  }, []);
+
   return (
     <AuthProvider>
       <Router>
