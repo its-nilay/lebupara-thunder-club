@@ -218,7 +218,7 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-2xl bg-[#0a1428] border border-cyan-500/30 rounded-2xl p-6 shadow-2xl text-slate-100 max-h-[90vh] overflow-y-auto"
+          className="relative w-full max-w-2xl bg-[#0a1428] border border-cyan-500/30 rounded-2xl p-4 sm:p-6 shadow-2xl text-slate-100 max-h-[90vh] overflow-y-auto"
         >
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-cyan-500/20">
@@ -257,12 +257,12 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
           )}
 
           {/* Scoreboard Inputs */}
-          <div className="mt-6 bg-[#040914] p-5 rounded-xl border border-slate-800">
-            <div className="grid grid-cols-1 sm:grid-cols-5 items-center gap-4 text-center">
+          <div className="mt-5 bg-[#040914] p-3.5 sm:p-5 rounded-2xl border border-slate-800 shadow-inner">
+            <div className="flex items-center justify-between gap-1.5 sm:gap-4">
               {/* Team 1 */}
-              <div className="sm:col-span-2 flex flex-col items-center">
+              <div className="flex-1 flex flex-col items-center min-w-0 text-center">
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mb-2 shadow-lg"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-black text-sm sm:text-base mb-1.5 shadow-lg flex-shrink-0"
                   style={{
                     backgroundColor: `${team1.color || '#00e5ff'}20`,
                     border: `2px solid ${team1.color || '#00e5ff'}`,
@@ -271,13 +271,17 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
                 >
                   {team1.captain_name?.slice(0, 2).toUpperCase() || 'T1'}
                 </div>
-                <span className="font-bold text-base text-white">{team1.name}</span>
-                <span className="text-xs text-cyan-400 font-semibold">Capt: {team1.captain_name}</span>
-                <div className="mt-3 flex items-center gap-2">
+                <span className="font-bold text-xs sm:text-base text-white truncate max-w-full px-1">
+                  {team1.name}
+                </span>
+                <span className="text-[10px] sm:text-xs text-cyan-400 font-semibold truncate max-w-full">
+                  Capt: {team1.captain_name}
+                </span>
+                <div className="mt-2.5 sm:mt-3 flex items-center justify-center gap-1 sm:gap-2">
                   <button
                     type="button"
                     onClick={() => setT1Score(Math.max(0, s1 - 1))}
-                    className="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-black text-sm sm:text-base transition flex items-center justify-center"
                   >
                     -
                   </button>
@@ -286,28 +290,32 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
                     min="0"
                     value={t1Score}
                     onChange={(e) => setT1Score(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                    className="w-16 h-12 text-center text-2xl font-black rounded-lg bg-slate-900 border border-cyan-500/40 text-cyan-400 focus:outline-none focus:border-cyan-400"
+                    className="w-12 h-10 sm:w-16 sm:h-12 text-center text-xl sm:text-2xl font-black rounded-xl bg-slate-900 border border-cyan-500/40 text-cyan-400 focus:outline-none focus:border-cyan-400 shadow-inner"
                   />
                   <button
                     type="button"
                     onClick={() => setT1Score(s1 + 1)}
-                    className="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-black text-sm sm:text-base transition flex items-center justify-center"
                   >
                     +
                   </button>
                 </div>
               </div>
 
-              {/* VS Divider */}
-              <div className="sm:col-span-1 flex flex-col items-center justify-center py-2">
-                <span className="text-xl font-black text-slate-500">VS</span>
-                <span className="text-xs text-slate-500 uppercase mt-1 font-semibold">Matchday</span>
+              {/* Scoreboard Divider */}
+              <div className="flex-shrink-0 flex flex-col items-center justify-center px-1 sm:px-3">
+                <div className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 font-black text-xs sm:text-sm text-slate-400 shadow-sm">
+                  VS
+                </div>
+                <span className="text-[9px] sm:text-[10px] text-slate-500 uppercase mt-1 font-bold tracking-wider">
+                  Score
+                </span>
               </div>
 
               {/* Team 2 */}
-              <div className="sm:col-span-2 flex flex-col items-center">
+              <div className="flex-1 flex flex-col items-center min-w-0 text-center">
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mb-2 shadow-lg"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-black text-sm sm:text-base mb-1.5 shadow-lg flex-shrink-0"
                   style={{
                     backgroundColor: `${team2.color || '#76ff03'}20`,
                     border: `2px solid ${team2.color || '#76ff03'}`,
@@ -316,13 +324,17 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
                 >
                   {team2.captain_name?.slice(0, 2).toUpperCase() || 'T2'}
                 </div>
-                <span className="font-bold text-base text-white">{team2.name}</span>
-                <span className="text-xs text-lime-400 font-semibold">Capt: {team2.captain_name}</span>
-                <div className="mt-3 flex items-center gap-2">
+                <span className="font-bold text-xs sm:text-base text-white truncate max-w-full px-1">
+                  {team2.name}
+                </span>
+                <span className="text-[10px] sm:text-xs text-lime-400 font-semibold truncate max-w-full">
+                  Capt: {team2.captain_name}
+                </span>
+                <div className="mt-2.5 sm:mt-3 flex items-center justify-center gap-1 sm:gap-2">
                   <button
                     type="button"
                     onClick={() => setT2Score(Math.max(0, s2 - 1))}
-                    className="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-black text-sm sm:text-base transition flex items-center justify-center"
                   >
                     -
                   </button>
@@ -331,12 +343,12 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
                     min="0"
                     value={t2Score}
                     onChange={(e) => setT2Score(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                    className="w-16 h-12 text-center text-2xl font-black rounded-lg bg-slate-900 border border-lime-500/40 text-lime-400 focus:outline-none focus:border-lime-400"
+                    className="w-12 h-10 sm:w-16 sm:h-12 text-center text-xl sm:text-2xl font-black rounded-xl bg-slate-900 border border-lime-500/40 text-lime-400 focus:outline-none focus:border-lime-400 shadow-inner"
                   />
                   <button
                     type="button"
                     onClick={() => setT2Score(s2 + 1)}
-                    className="w-8 h-8 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-black text-sm sm:text-base transition flex items-center justify-center"
                   >
                     +
                   </button>
@@ -346,20 +358,20 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
 
             {/* Live outcome banner */}
             <div
-              className="mt-5 p-3 rounded-lg flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm font-semibold border"
+              className="mt-4 p-3 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-4 text-xs font-semibold border"
               style={{
                 backgroundColor: `${outcome.color}10`,
                 borderColor: `${outcome.color}40`,
                 color: outcome.color,
               }}
             >
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4" />
-                <span>Auto Outcome:</span>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <Zap className="w-3.5 h-3.5" />
+                <span className="uppercase tracking-wider text-[11px] font-bold">Auto Outcome:</span>
               </div>
-              <div className="flex items-center gap-4 mt-1 sm:mt-0">
+              <div className="flex items-center gap-2 text-center flex-wrap justify-center text-xs">
                 <span>{outcome.t1Text}</span>
-                <span>•</span>
+                <span className="text-slate-500">•</span>
                 <span>{outcome.t2Text}</span>
               </div>
             </div>
@@ -367,25 +379,25 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
 
           {/* Goal Scorers Section */}
           <div className="mt-6">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
               <div>
                 <h3 className="text-sm font-bold text-slate-200">Goal Scorers (Golden Boot Tracking)</h3>
                 <p className="text-xs text-slate-400">
                   Select which club member scored for Captain {team1.captain_name} or Captain {team2.captain_name} today.
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <button
                   type="button"
                   onClick={() => addScorerRow(team1.id)}
-                  className="text-xs px-2.5 py-1 rounded bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center gap-1 font-semibold"
+                  className="text-xs px-2.5 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center gap-1 font-semibold transition"
                 >
                   <Plus className="w-3 h-3" /> +{team1.captain_name} Goal
                 </button>
                 <button
                   type="button"
                   onClick={() => addScorerRow(team2.id)}
-                  className="text-xs px-2.5 py-1 rounded bg-lime-500/10 hover:bg-lime-500/20 text-lime-400 border border-lime-500/30 flex items-center gap-1 font-semibold"
+                  className="text-xs px-2.5 py-1.5 rounded-lg bg-lime-500/10 hover:bg-lime-500/20 text-lime-400 border border-lime-500/30 flex items-center gap-1 font-semibold transition"
                 >
                   <Plus className="w-3 h-3" /> +{team2.captain_name} Goal
                 </button>
@@ -393,76 +405,90 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
             </div>
 
             {goalScorers.length === 0 ? (
-              <div className="p-3 text-center rounded-lg bg-slate-900/50 border border-dashed border-slate-800 text-xs text-slate-500">
+              <div className="p-3 text-center rounded-xl bg-slate-900/50 border border-dashed border-slate-800 text-xs text-slate-500">
                 No goal records added yet. Click above to attribute goals to players for the Golden Boot table.
               </div>
             ) : (
-              <div className="space-y-2 mt-3">
+              <div className="space-y-2.5 mt-3">
                 {goalScorers.map((scorer, idx) => {
                   const isForT1 = parseInt(scorer.team_id, 10) === team1.id;
                   return (
                     <div
                       key={idx}
-                      className="flex items-center gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800 text-xs flex-wrap sm:flex-nowrap"
+                      className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs flex flex-col sm:flex-row sm:items-center gap-2"
                     >
-                      {/* Team side toggle */}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          updateScorerRow(idx, 'team_id', isForT1 ? team2.id : team1.id)
-                        }
-                        className={`px-2 py-1 rounded font-bold text-[10px] uppercase border transition ${
-                          isForT1
-                            ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
-                            : 'bg-lime-500/10 text-lime-400 border-lime-500/30'
-                        }`}
-                        title="Click to toggle which team this player scored for today"
-                      >
-                        {isForT1 ? `Side: ${team1.captain_name}` : `Side: ${team2.captain_name}`}
-                      </button>
+                      {/* Mobile Row 1 / Desktop Left: Team Badge + Player Select + Mobile Delete */}
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateScorerRow(idx, 'team_id', isForT1 ? team2.id : team1.id)
+                          }
+                          className={`px-2 py-1 rounded-md font-bold text-[10px] uppercase border transition flex-shrink-0 ${
+                            isForT1
+                              ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
+                              : 'bg-lime-500/10 text-lime-400 border-lime-500/30'
+                          }`}
+                          title="Click to toggle which team this player scored for today"
+                        >
+                          {isForT1 ? `Side: ${team1.captain_name}` : `Side: ${team2.captain_name}`}
+                        </button>
 
-                      {/* Player Select */}
-                      <select
-                        value={scorer.player_id}
-                        onChange={(e) => updateScorerRow(idx, 'player_id', parseInt(e.target.value, 10))}
-                        className="flex-1 bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-slate-200 min-w-[140px]"
-                      >
-                        {sortedPlayers.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name} {!p.is_active ? '(Inactive)' : ''}
-                          </option>
-                        ))}
-                      </select>
+                        <select
+                          value={scorer.player_id}
+                          onChange={(e) => updateScorerRow(idx, 'player_id', parseInt(e.target.value, 10))}
+                          className="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200 text-xs truncate focus:outline-none focus:border-cyan-400"
+                        >
+                          {sortedPlayers.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} {!p.is_active ? '(Inactive)' : ''}
+                            </option>
+                          ))}
+                        </select>
 
-                      <div className="flex items-center gap-1">
-                        <span className="text-slate-400">Goals:</span>
-                        <input
-                          type="number"
-                          min="1"
-                          max="15"
-                          value={scorer.goals}
-                          onChange={(e) => updateScorerRow(idx, 'goals', parseInt(e.target.value, 10) || 1)}
-                          className="w-12 bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-center text-slate-200"
-                        />
+                        {/* Mobile-only delete button */}
+                        <button
+                          type="button"
+                          onClick={() => removeScorerRow(idx)}
+                          className="sm:hidden p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10 flex-shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
 
-                      <label className="flex items-center gap-1 text-slate-400 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={scorer.is_own_goal}
-                          onChange={(e) => updateScorerRow(idx, 'is_own_goal', e.target.checked)}
-                          className="rounded border-slate-700 bg-slate-800 text-cyan-500"
-                        />
-                        <span>Own Goal</span>
-                      </label>
+                      {/* Mobile Row 2 / Desktop Right: Goals + Own Goal + Desktop Delete */}
+                      <div className="flex items-center justify-between sm:justify-end gap-3 pt-1.5 sm:pt-0 border-t border-slate-800/80 sm:border-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-slate-400 text-xs">Goals:</span>
+                          <input
+                            type="number"
+                            min="1"
+                            max="15"
+                            value={scorer.goals}
+                            onChange={(e) => updateScorerRow(idx, 'goals', parseInt(e.target.value, 10) || 1)}
+                            className="w-12 bg-slate-800 border border-slate-700 rounded-lg px-1.5 py-1 text-center text-slate-200 text-xs font-bold focus:outline-none focus:border-cyan-400"
+                          />
+                        </div>
 
-                      <button
-                        type="button"
-                        onClick={() => removeScorerRow(idx)}
-                        className="p-1 rounded text-red-400 hover:bg-red-500/10"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                        <label className="flex items-center gap-1.5 text-slate-400 cursor-pointer text-xs">
+                          <input
+                            type="checkbox"
+                            checked={scorer.is_own_goal}
+                            onChange={(e) => updateScorerRow(idx, 'is_own_goal', e.target.checked)}
+                            className="rounded border-slate-700 bg-slate-800 text-cyan-500"
+                          />
+                          <span className={scorer.is_own_goal ? 'text-amber-400 font-bold' : ''}>Own Goal</span>
+                        </label>
+
+                        {/* Desktop-only delete button */}
+                        <button
+                          type="button"
+                          onClick={() => removeScorerRow(idx)}
+                          className="hidden sm:block p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10 transition flex-shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -527,15 +553,15 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
 
           {/* Actions */}
           <div className="mt-6 pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {match.status === 'completed' && (
                 <button
                   type="button"
                   onClick={handleReopenOnly}
                   disabled={loading}
-                  className="px-3 py-2 rounded-lg text-xs font-semibold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 flex items-center gap-1.5"
+                  className="flex-1 sm:flex-none px-3 py-2 rounded-xl text-xs font-semibold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 flex items-center justify-center gap-1.5 transition"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-3.5 h-3.5" />
                   Reopen As Unplayed
                 </button>
               )}
@@ -544,19 +570,19 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
                 onClick={handleSaveDateOnly}
                 disabled={loading}
                 title="Save updated kickoff date, time, and notes without re-saving scores"
-                className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-cyan-400 bg-slate-900 border border-slate-700 hover:border-cyan-500/40 flex items-center gap-1.5 transition"
+                className="flex-1 sm:flex-none px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-cyan-400 bg-slate-900 border border-slate-700 hover:border-cyan-500/40 flex items-center justify-center gap-1.5 transition"
               >
                 <Clock className="w-3.5 h-3.5 text-cyan-400" />
                 Save Date & Time Only
               </button>
             </div>
 
-            <div className="flex items-center justify-end gap-3">
+            <div className="flex items-center justify-end gap-2.5 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800 transition text-center"
               >
                 Cancel
               </button>
@@ -564,7 +590,7 @@ export default function ScoreModal({ match, teams, players, totalMatches, isOpen
                 type="button"
                 onClick={handleSave}
                 disabled={loading || (goalScorers.length > 0 && hasScorerMismatch)}
-                className="px-5 py-2 rounded-lg text-sm font-bold bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 hover:brightness-110 shadow-lg shadow-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 hover:brightness-110 shadow-lg shadow-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 transition"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 {loading ? 'Saving...' : match.status === 'completed' ? 'Update & Recalculate' : 'Confirm & Complete'}

@@ -44,7 +44,7 @@ export default function TeamConfigModal({ team, players = [], isOpen, onClose, o
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="relative w-full max-w-md bg-[#0a1428] border border-cyan-500/30 rounded-2xl p-6 shadow-2xl text-slate-100"
+          className="relative w-full max-w-md bg-[#0a1428] border border-cyan-500/30 rounded-2xl p-4 sm:p-6 shadow-2xl text-slate-100"
         >
           <div className="flex items-center justify-between pb-3 border-b border-cyan-500/20">
             <div className="flex items-center gap-2">

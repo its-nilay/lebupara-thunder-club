@@ -236,37 +236,37 @@ export default function Matches() {
                 </div>
 
                 {/* Scoreboard */}
-                <div className="flex-1 max-w-xl mx-auto w-full bg-[#030712]/70 p-4 rounded-xl border border-slate-800/80">
-                  <div className="grid grid-cols-5 items-center text-center">
+                <div className="flex-1 max-w-xl mx-auto w-full bg-[#030712]/70 p-3 sm:p-4 rounded-xl border border-slate-800/80">
+                  <div className="flex items-center justify-between gap-2 text-center">
                     {/* Team 1 */}
-                    <div className="col-span-2 text-right pr-3">
-                      <div className="font-bold text-sm sm:text-base text-white truncate">
+                    <div className="flex-1 text-right min-w-0 pr-1 sm:pr-3">
+                      <div className="font-bold text-xs sm:text-base text-white truncate">
                         {t1Result?.team_name || teams[0]?.name || 'Team 1'}
                       </div>
-                      <div className="text-[11px] text-cyan-400">
+                      <div className="text-[10px] sm:text-[11px] text-cyan-400 truncate">
                         Capt: {teams[0]?.captain_name || 'Suvradip'}
                       </div>
                     </div>
 
                     {/* Score / VS */}
-                    <div className="col-span-1 flex items-center justify-center">
+                    <div className="flex-shrink-0 flex items-center justify-center">
                       {match.status === 'completed' ? (
-                        <div className="px-3 py-1 rounded-lg bg-slate-900 border border-cyan-500/40 text-lg sm:text-xl font-black text-cyan-300 tracking-wider">
+                        <div className="px-2.5 sm:px-3 py-1 rounded-lg bg-slate-900 border border-cyan-500/40 text-base sm:text-xl font-black text-cyan-300 tracking-wider whitespace-nowrap shadow-sm">
                           {t1Result?.goals_scored ?? 0} - {t2Result?.goals_scored ?? 0}
                         </div>
                       ) : (
-                        <span className="text-xs font-black text-slate-500 px-2 py-1 rounded bg-slate-900 border border-slate-800">
+                        <span className="text-xs font-black text-slate-500 px-2.5 py-1 rounded bg-slate-900 border border-slate-800 whitespace-nowrap">
                           VS
                         </span>
                       )}
                     </div>
 
                     {/* Team 2 */}
-                    <div className="col-span-2 text-left pl-3">
-                      <div className="font-bold text-sm sm:text-base text-white truncate">
+                    <div className="flex-1 text-left min-w-0 pl-1 sm:pl-3">
+                      <div className="font-bold text-xs sm:text-base text-white truncate">
                         {t2Result?.team_name || teams[1]?.name || 'Team 2'}
                       </div>
-                      <div className="text-[11px] text-lime-400">
+                      <div className="text-[10px] sm:text-[11px] text-lime-400 truncate">
                         Capt: {teams[1]?.captain_name || 'Arnab'}
                       </div>
                     </div>
@@ -304,7 +304,7 @@ export default function Matches() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 self-end lg:self-center flex-wrap justify-end">
+                <div className="w-full lg:w-auto flex items-center gap-2 justify-stretch sm:justify-end flex-wrap">
                   {isAdmin ? (
                     <>
                       <button
