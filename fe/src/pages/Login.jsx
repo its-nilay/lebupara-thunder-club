@@ -97,6 +97,21 @@ export default function Login() {
           </button>
         </form>
 
+        {/* Quick Fill Helper */}
+        <div className="mt-4 pt-4 border-t border-slate-800 text-center">
+          <p className="text-[11px] text-slate-400 mb-2">Authorized quick sign-in:</p>
+          <button
+            type="button"
+            onClick={() => {
+              setUsername('admin');
+              setPassword('Admin@123');
+              setError(null);
+            }}
+            className="w-full py-2.5 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/30 text-xs font-bold text-cyan-400 flex items-center justify-center gap-2 transition shadow-sm hover:border-cyan-400"
+          >
+            <Shield className="w-3.5 h-3.5 text-cyan-400" /> Auto-fill Admin Credentials (admin / Admin@123)
+          </button>
+        </div>
 
         <div className="mt-4 text-center">
           <Link to="/" className="text-xs text-slate-400 hover:text-white flex items-center justify-center gap-1">

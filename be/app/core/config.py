@@ -11,8 +11,8 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///./lebupara.db"
 
-    # JWT
-    SECRET_KEY: str = secrets.token_urlsafe(32)
+    # JWT (Persistent secret key ensures tokens survive server sleep/restarts)
+    SECRET_KEY: str = "lebupara-thunder-club-jwt-secret-key-production-2026-fixed"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
