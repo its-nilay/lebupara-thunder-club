@@ -1,0 +1,120 @@
+# ==============================================================================
+# Lebupara Thunder Club — Comprehensive Git Ignore
+# ==============================================================================
+
+# Python Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+be/.venv/
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing & Coverage
+.cache/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# SQLite Databases & Local Data (Do NOT commit runtime databases)
+*.db
+*.sqlite
+*.sqlite3
+be/lebupara.db
+be/*.db
+
+# Node.js & Dependencies
+node_modules/
+fe/node_modules/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.yarn-integrity
+
+# Frontend Production Builds
+dist/
+fe/dist/
+dist-ssr/
+fe/dist-ssr/
+.vite/
+fe/.vite/
+
+# Environment Variables & Secrets (Keep .env.example files tracked)
+.env
+*.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+be/.env
+fe/.env
+fe/.env.local
+fe/.env.production
+
+# Keep example files tracked for developers
+!.env.example
+!be/.env.example
+!fe/.env.example
+
+# IDEs & Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS-generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log

@@ -1,0 +1,126 @@
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Shield, Zap, Lock, User, AlertCircle, ArrowLeft } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+
+export default function Login() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!username || !password) {
+      setError('Please enter both username and password');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      await login(username, password);
+      navigate('/admin');
+    } catch (err) {
+      setError(err?.response?.data?.detail || 'Invalid username or password');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFillDemo = () => {
+    setUsername('admin');
+    setPassword('Admin@123456');
+    setError(null);
+  };
+
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-md p-8 rounded-3xl glass-card border border-cyan-500/30 shadow-2xl relative overflow-hidden"
+      >
+        <div className="absolute top-0 right-0 -mr-12 -mt-12 w-40 h-40 rounded-full bg-cyan-500/10 blur-2xl pointer-events-none" />
+
+        <div className="text-center space-y-2 mb-6">
+          <div className="inline-flex p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 mb-2">
+            <Shield className="w-8 h-8" />
+          </div>
+          <h1 className="text-2xl font-black text-white">LEAGUE ADMIN PORTAL</h1>
+          <p className="text-xs text-slate-400">
+            Secure access to manage match fixtures, enter live scores, and adjust teams
+          </p>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2 text-red-400 text-xs">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Username</label>
+            <div className="relative">
+              <User className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Admin username"
+                required
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-100 focus:outline-none focus:border-cyan-400"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+            <div className="relative">
+              <Lock className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-100 focus:outline-none focus:border-cyan-400"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 hover:brightness-110 shadow-lg shadow-cyan-500/25 disabled:opacity-50 transition"
+          >
+            {loading ? 'Authenticating...' : 'Sign In to Admin Panel'}
+          </button>
+        </form>
+
+        {/* Demo credentials helper */}
+        <div className="mt-6 pt-5 border-t border-slate-800 text-center">
+          <p className="text-xs text-slate-400 mb-2">Need quick test access?</p>
+          <button
+            type="button"
+            onClick={handleFillDemo}
+            className="w-full py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-cyan-400 flex items-center justify-center gap-1.5 transition"
+          >
+            <Zap className="w-3.5 h-3.5" /> Auto-fill Demo Admin Credentials (admin)
+          </button>
+        </div>
+
+        <div className="mt-4 text-center">
+          <Link to="/" className="text-xs text-slate-400 hover:text-white flex items-center justify-center gap-1">
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Public Dashboard
+          </Link>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
