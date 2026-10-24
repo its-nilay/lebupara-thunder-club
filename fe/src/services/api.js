@@ -67,7 +67,7 @@ export const setCustomApiUrl = (url) => {
 
 export const testBackendConnection = async (targetUrl) => {
   const url = (targetUrl || getActiveApiUrl()).replace(/\/+$/, '');
-  const res = await axios.get(`${url}/api/health`, { timeout: 10000 });
+  const res = await axios.get(`${url}/api/health`, { timeout: 20000 });
   return res.data?.status === 'ok' || res.data?.status === 'healthy';
 };
 
@@ -181,26 +181,9 @@ export const getPlayer = (id) =>
   );
 export const getDashboardStats = () => withFallback(() => api.get('/api/dashboard/stats'), getMockDashboardStats);
 
-// Auth
+// Auth — no retry loop; Login page handles wakeup and only calls this when server is ready
 export const login = async (data) => {
-  let lastErr = null;
-  for (let i = 0; i < 4; i++) {
-    try {
-      const res = await api.post('/api/auth/login', data);
-      return res;
-    } catch (err) {
-      lastErr = err;
-      // If credentials rejected or bad request, do not retry
-      if (err.response?.status === 401 || err.response?.status === 400 || err.response?.status === 422) {
-        throw err;
-      }
-      // If network error / cold start, wait and retry
-      if (i < 3) {
-        await new Promise((r) => setTimeout(r, 2500));
-      }
-    }
-  }
-  throw lastErr;
+  return await api.post('/api/auth/login', data);
 };
 
 export const logout = async () => {

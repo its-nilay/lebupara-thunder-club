@@ -1,9 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, User, AlertCircle, ArrowLeft, RefreshCw, Zap } from 'lucide-react';
+import { Lock, User, AlertCircle, ArrowLeft, RefreshCw, CheckCircle2, Wifi, WifiOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { testBackendConnection } from '../services/api';
+import { getActiveApiUrl } from '../services/api';
+
+const RENDER_URL = 'https://lebupara-thunder-club.onrender.com';
+const WAKEUP_TIMEOUT_MS = 90000; // 90 seconds max wakeup wait
+
+async function pingServer(url) {
+  try {
+    const res = await fetch(`${url}/api/health`, {
+      method: 'GET',
+      signal: AbortSignal.timeout(8000),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      return json?.status === 'ok' || json?.status === 'healthy';
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
 
 export default function Login() {
   const { login } = useAuth();
@@ -13,14 +32,59 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [serverOnline, setServerOnline] = useState(null); // true | false | null
 
+  // Server status: 'checking' | 'waking' | 'online' | 'offline'
+  const [serverStatus, setServerStatus] = useState('checking');
+  const [wakeupSeconds, setWakeupSeconds] = useState(0);
+  const wakeupRef = useRef(null);
+  const timerRef = useRef(null);
+
+  // Poll the server until it's alive
   useEffect(() => {
-    let active = true;
-    testBackendConnection()
-      .then((ok) => { if (active) setServerOnline(ok); })
-      .catch(() => { if (active) setServerOnline(false); });
-    return () => { active = false; };
+    let cancelled = false;
+    const apiUrl = getActiveApiUrl();
+
+    const startTime = Date.now();
+
+    const checkServer = async () => {
+      const ok = await pingServer(apiUrl);
+      if (cancelled) return;
+
+      if (ok) {
+        setServerStatus('online');
+        if (timerRef.current) clearInterval(timerRef.current);
+        if (wakeupRef.current) clearTimeout(wakeupRef.current);
+        return;
+      }
+
+      // Not online yet — start countdown display and keep polling
+      setServerStatus((prev) => (prev === 'checking' ? 'waking' : prev));
+
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      setWakeupSeconds(elapsed);
+
+      if (Date.now() - startTime > WAKEUP_TIMEOUT_MS) {
+        setServerStatus('offline');
+        if (timerRef.current) clearInterval(timerRef.current);
+        return;
+      }
+
+      // Poll again in 4 seconds
+      wakeupRef.current = setTimeout(checkServer, 4000);
+    };
+
+    // Start elapsed timer display
+    timerRef.current = setInterval(() => {
+      setWakeupSeconds((s) => s + 1);
+    }, 1000);
+
+    checkServer();
+
+    return () => {
+      cancelled = true;
+      clearInterval(timerRef.current);
+      clearTimeout(wakeupRef.current);
+    };
   }, []);
 
   const handleSubmit = async (e) => {
@@ -30,32 +94,48 @@ export default function Login() {
       setError('Please enter both username and password');
       return;
     }
+
+    // If server is still waking up, give it a few more seconds first
+    if (serverStatus === 'waking' || serverStatus === 'checking') {
+      setError('Please wait — the cloud server is still waking up. Try again in a moment.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
+
     try {
       await login(cleanUser, password);
       navigate('/admin');
     } catch (err) {
+      const status = err?.response?.status;
       const detail = err?.response?.data?.detail;
-      let msg = 'Invalid username or password';
-      if (typeof detail === 'string') {
-        msg = detail;
-      } else if (Array.isArray(detail) && detail[0]?.msg) {
-        msg = detail[0].msg;
+
+      if (status === 401 || status === 403) {
+        setError('Invalid username or password. Please check your credentials.');
+      } else if (status === 422) {
+        const msg = Array.isArray(detail)
+          ? detail.map((d) => d.msg).join(', ')
+          : (typeof detail === 'string' ? detail : 'Invalid input');
+        setError(msg);
       } else if (
         err?.code === 'ERR_NETWORK' ||
         err?.message === 'Network Error' ||
         err?.code === 'ECONNABORTED'
       ) {
-        msg = 'Cloud server is waking up or deploying (Render takes 15-20s on wakeup). Please retry in a few moments.';
-      } else if (err?.message) {
-        msg = err.message;
+        setError('Connection failed. The server may be waking up — please wait 15-20 seconds and try again.');
+        // Re-trigger server check
+        setServerStatus('waking');
+      } else {
+        setError(err?.message || 'An unexpected error occurred. Please try again.');
       }
-      setError(msg);
     } finally {
       setLoading(false);
     }
   };
+
+  const isServerReady = serverStatus === 'online';
+  const isServerWaking = serverStatus === 'waking' || serverStatus === 'checking';
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
@@ -75,22 +155,37 @@ export default function Login() {
             Lebupara Thunder Club • Authorized Management Access
           </p>
 
+          {/* Server Status Badge */}
           <div className="pt-2 flex items-center justify-center">
-            {serverOnline === true && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Render Cloud Database Active
+            {serverStatus === 'online' && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                <CheckCircle2 className="w-3 h-3" />
+                Cloud Server Active — Ready to Login
               </span>
             )}
-            {serverOnline === false && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-                Cloud server waking up...
-              </span>
+            {(serverStatus === 'waking' || serverStatus === 'checking') && (
+              <div className="flex flex-col items-center gap-1">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                  <RefreshCw className="w-3 h-3 animate-spin" />
+                  Waking cloud server... ({wakeupSeconds}s)
+                </span>
+                <span className="text-[10px] text-slate-500">
+                  Render free tier spins down when idle — takes ~20s to wake
+                </span>
+                {/* Progress bar */}
+                <div className="w-48 h-1 bg-slate-800 rounded-full overflow-hidden mt-1">
+                  <motion.div
+                    className="h-full bg-amber-400/60 rounded-full"
+                    animate={{ width: `${Math.min((wakeupSeconds / 30) * 100, 95)}%` }}
+                    transition={{ duration: 1, ease: 'linear' }}
+                  />
+                </div>
+              </div>
             )}
-            {serverOnline === null && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium text-slate-500">
-                <RefreshCw className="w-2.5 h-2.5 animate-spin" /> Checking server...
+            {serverStatus === 'offline' && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-500/10 border border-red-500/30 text-red-400">
+                <WifiOff className="w-3 h-3" />
+                Server unreachable — check connection
               </span>
             )}
           </div>
@@ -142,18 +237,29 @@ export default function Login() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || isServerWaking}
             className="w-full py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 hover:brightness-110 shadow-lg shadow-cyan-500/25 disabled:opacity-50 transition flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
-                Connecting & Authenticating...
+                Authenticating...
+              </>
+            ) : isServerWaking ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
+                Waiting for server...
               </>
             ) : (
               'Sign In to Admin Panel'
             )}
           </button>
+
+          {isServerWaking && (
+            <p className="text-center text-[10px] text-slate-500">
+              Login will be enabled once the cloud server finishes waking up
+            </p>
+          )}
         </form>
 
         <div className="mt-6 text-center">

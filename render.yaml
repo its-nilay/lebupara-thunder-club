@@ -10,3 +10,7 @@ services:
         value: 3.12.8
       - key: PORT
         value: 10000
+      - key: CORS_ORIGINS
+        value: http://localhost:5173,http://localhost:3000,https://lebupara-thunder-club.vercel.app,https://*.vercel.app
+      - key: SECRET_KEY
+        value: lebupara-thunder-club-jwt-secret-key-production-2026-fixed
