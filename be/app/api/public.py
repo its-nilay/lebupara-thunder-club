@@ -15,7 +15,7 @@ from app.services.match_service import get_or_create_league
 router = APIRouter()
 
 
-@router.get("/health")
+@router.api_route("/health", methods=["GET", "HEAD"])
 def health():
     return {"status": "ok", "service": "Lebupara Thunder Club API"}
 
