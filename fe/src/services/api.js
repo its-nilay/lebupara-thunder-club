@@ -30,7 +30,8 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// On 401, try token refresh once — but don't redirect to login (user is locally authed)
+// On 401, try token refresh once. On failure, reject cleanly (don't clear tokens/redirect).
+// AuthContext handles proactive JWT refresh every 20 min so this should rarely trigger.
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -48,9 +49,8 @@ api.interceptors.response.use(
           error.config.headers.Authorization = `Bearer ${data.access_token}`;
           return api(error.config);
         } catch {
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          // Don't redirect — the user is still locally authenticated
+          // Refresh failed (server may be restarting) — do NOT clear tokens.
+          // AuthContext's periodic refresh will get a new JWT shortly.
         }
       }
     }
